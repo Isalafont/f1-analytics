@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "net/http"
 require "json"
 
@@ -9,12 +11,12 @@ round = 0
 sessions.each do |s|
   round += 1
   Race.find_or_create_by!(season: 2025, round: round) do |r|
-    r.name = "#{s['country_name']} Grand Prix"
+    r.name = "#{s["country_name"]} Grand Prix"
     r.circuit = s["circuit_short_name"]
     r.country = s["country_name"]
     r.date = DateTime.parse(s["date_start"])
     r.status = "scheduled"
   end
-  puts "✓ Round #{round}: #{s['country_name']} - #{s['circuit_short_name']}"
+  Rails.logger.debug { "✓ Round #{round}: #{s["country_name"]} - #{s["circuit_short_name"]}" }
 end
-puts "✅ #{round} races imported!"
+Rails.logger.debug { "✅ #{round} races imported!" }

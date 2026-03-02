@@ -1,9 +1,9 @@
-# app/models/metric.rb
+# frozen_string_literal: true
+
 class Metric < ApplicationRecord
   belongs_to :driver
   belongs_to :race, optional: true
 
-  validates :driver, presence: true
   validates :season, presence: true, numericality: { only_integer: true }
   validates :driver_id, uniqueness: { scope: :race_id }, if: :race_id?
 
@@ -14,55 +14,69 @@ class Metric < ApplicationRecord
 
   def self.calculate_for_driver(driver, race = nil)
     metric = find_or_initialize_by(driver: driver, race: race, season: driver.season)
-    
-    results = if race
-                driver.results.where(race: race)
-              else
-                driver.results.joins(:race).where(races: { season: driver.season, status: 'completed' })
-              end
-
+    results = driver_results(driver, race)
     return metric if results.empty?
 
-    # Performance Index (0-100)
-    # Points scored weighted by team reliability
-    total_points = results.sum(:points)
-    races_completed = results.count
-    dnf_penalty = results.where.not(status: 'Finished').count * 5
-    metric.performance_index = [[total_points - dnf_penalty, 0].max, 100].min
-
-    # Consistency Score (0-100)
-    # Lower variance = higher score
-    positions = results.where.not(final_position: nil).pluck(:final_position)
-    if positions.any?
-      avg_position = positions.sum.to_f / positions.size
-      variance = positions.map { |p| (p - avg_position)**2 }.sum / positions.size
-      metric.consistency_score = [100 - (variance * 2), 0].max
-    end
-
-    # Race Pace (avg positions gained)
-    gains = results.map(&:positions_gained).compact
-    metric.race_pace = gains.any? ? (gains.sum.to_f / gains.size).round(2) : 0
-
-    # Quali Pace
-    grid_positions = results.where.not(grid_position: nil).pluck(:grid_position)
-    metric.quali_pace = grid_positions.any? ? (grid_positions.sum.to_f / grid_positions.size).round(2) : 0
-    metric.avg_grid_position = metric.quali_pace
-
-    # Average finish position
-    finish_positions = results.where(status: 'Finished').pluck(:final_position)
-    metric.avg_finish_position = finish_positions.any? ? (finish_positions.sum.to_f / finish_positions.size).round(2) : 0
-
-    # Recent Form (last 3 races rolling average)
-    recent = driver.results.joins(:race)
-                   .where(races: { status: 'completed' })
-                   .order('races.date DESC')
-                   .limit(3)
-    metric.recent_form = recent.average(:points)&.round(2) || 0
-
-    # Positions gained total
-    metric.positions_gained = gains.sum
-
+    assign_metrics(metric, driver, results)
     metric.save
     metric
   end
+
+  def self.assign_metrics(metric, driver, results)
+    metric.performance_index = calc_performance_index(results)
+    metric.consistency_score = calc_consistency_score(results)
+    metric.race_pace = calc_race_pace(results)
+    metric.quali_pace = calc_quali_pace(results)
+    metric.avg_grid_position = metric.quali_pace
+    metric.avg_finish_position = calc_avg_finish(results)
+    metric.recent_form = calc_recent_form(driver)
+    metric.positions_gained = results.filter_map(&:positions_gained).sum
+  end
+
+  def self.driver_results(driver, race)
+    return driver.results.where(race: race) if race
+
+    driver.results.joins(:race).where(races: { season: driver.season, status: "completed" })
+  end
+
+  def self.calc_performance_index(results)
+    dnf_penalty = results.where.not(status: "Finished").count * 5
+    (results.sum(:points) - dnf_penalty).clamp(0, 100)
+  end
+
+  def self.calc_consistency_score(results)
+    positions = results.where.not(final_position: nil).pluck(:final_position)
+    return 0 if positions.empty?
+
+    avg = positions.sum.to_f / positions.size
+    variance = positions.sum { |p| (p - avg)**2 } / positions.size
+    [100 - (variance * 2), 0].max
+  end
+
+  def self.calc_race_pace(results)
+    gains = results.filter_map(&:positions_gained)
+    gains.any? ? (gains.sum.to_f / gains.size).round(2) : 0
+  end
+
+  def self.calc_quali_pace(results)
+    grids = results.where.not(grid_position: nil).pluck(:grid_position)
+    grids.any? ? (grids.sum.to_f / grids.size).round(2) : 0
+  end
+
+  def self.calc_avg_finish(results)
+    finishes = results.where(status: "Finished").pluck(:final_position)
+    finishes.any? ? (finishes.sum.to_f / finishes.size).round(2) : 0
+  end
+
+  def self.calc_recent_form(driver)
+    driver.results.joins(:race)
+          .where(races: { status: "completed" })
+          .order("races.date DESC")
+          .limit(3)
+          .average(:points)&.round(2) || 0
+  end
+
+  private_class_method :assign_metrics, :driver_results, :calc_performance_index,
+                       :calc_consistency_score, :calc_race_pace, :calc_quali_pace,
+                       :calc_avg_finish, :calc_recent_form
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # app/models/driver.rb
 class Driver < ApplicationRecord
   belongs_to :team
@@ -14,7 +16,7 @@ class Driver < ApplicationRecord
   scope :active, -> { where(active: true) }
   scope :for_season, ->(season) { where(season: season) }
   scope :current_season, -> { for_season(Date.current.year) }
-  scope :by_points, -> { joins(:results).group(:id).order('SUM(results.points) DESC') }
+  scope :by_points, -> { joins(:results).group(:id).order("SUM(results.points) DESC") }
 
   def full_name
     "#{first_name} #{last_name}"
@@ -39,10 +41,10 @@ class Driver < ApplicationRecord
   def head_to_head_vs_teammate
     return nil unless teammate
 
-    my_wins = results.joins(:race).where(races: { status: 'completed' })
-                     .where('final_position < ?', teammate.results.joins(:race)
-                     .where(races: { id: results.joins(:race).select('races.id') })
-                     .select(:final_position))
+    my_wins = results.joins(:race).where(races: { status: "completed" })
+                     .where(final_position: ...teammate.results.joins(:race)
+                                               .where(races: { id: results.joins(:race).select("races.id") })
+                                               .select(:final_position))
                      .count
 
     teammate_wins = teammate.results.count - my_wins
@@ -51,12 +53,12 @@ class Driver < ApplicationRecord
 
   def recent_form(races_count = 3)
     recent_results = results.joins(:race)
-                            .where(races: { status: 'completed' })
-                            .order('races.date DESC')
+                            .where(races: { status: "completed" })
+                            .order("races.date DESC")
                             .limit(races_count)
-    
+
     return nil if recent_results.empty?
-    
+
     recent_results.average(:points)&.round(2)
   end
 
@@ -68,22 +70,22 @@ class Driver < ApplicationRecord
     driver_news.high_impact.affects_performance.recent
   end
 
-  def has_active_penalties?
+  def active_penalties?
     driver_news.category_penalty.recent.any?
   end
 
   def wet_weather_specialist?
     # Calculate performance in wet vs dry conditions
     wet_results = results.joins(race: :weather_conditions)
-                        .where(weather_conditions: { condition: ['Wet', 'Mixed', 'Damp'] })
+                         .where(weather_conditions: { condition: %w[Wet Mixed Damp] })
     dry_results = results.joins(race: :weather_conditions)
-                        .where(weather_conditions: { condition: 'Dry' })
-    
-    return nil if wet_results.empty? || dry_results.empty?
-    
+                         .where(weather_conditions: { condition: "Dry" })
+
+    return false if wet_results.empty? || dry_results.empty?
+
     wet_avg = wet_results.average(:points) || 0
     dry_avg = dry_results.average(:points) || 0
-    
+
     wet_avg > dry_avg
   end
 end

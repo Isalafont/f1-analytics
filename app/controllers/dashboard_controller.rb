@@ -1,65 +1,19 @@
-# app/controllers/dashboard_controller.rb
+# frozen_string_literal: true
+
 class DashboardController < ApplicationController
   def index
     @season = params[:season]&.to_i || Date.current.year
-    
-    # Current standings
-    @drivers = Driver.for_season(@season)
-                     .includes(:team, :results)
-                     .by_points
-                     .limit(20)
-    
-    @teams = Team.for_season(@season)
-                 .includes(:drivers, :results)
-                 .order('(SELECT SUM(points) FROM results INNER JOIN drivers ON results.driver_id = drivers.id WHERE drivers.team_id = teams.id) DESC')
-
-    # Recent races
-    @recent_races = Race.for_season(@season)
-                        .completed
-                        .limit(5)
-    
-    # Upcoming races
-    @upcoming_races = Race.for_season(@season)
-                          .upcoming
-                          .limit(3)
-
-    # Top performers (by performance index)
-    @top_performers = Driver.for_season(@season)
-                            .joins(:metrics)
-                            .where(metrics: { race_id: nil })
-                            .order('metrics.performance_index DESC')
-                            .limit(10)
-
-    # Most consistent (by consistency score)
-    @most_consistent = Driver.for_season(@season)
-                             .joins(:metrics)
-                             .where(metrics: { race_id: nil })
-                             .order('metrics.consistency_score DESC')
-                             .limit(10)
-
-    # Hot form (recent 3 races)
-    @hot_form = Driver.for_season(@season)
-                      .joins(:metrics)
-                      .where(metrics: { race_id: nil })
-                      .where('metrics.recent_form > 0')
-                      .order('metrics.recent_form DESC')
-                      .limit(10)
-
-    # Critical news (high impact affecting performance)
-    @critical_team_news = TeamNews.high_impact.affects_performance.recent.includes(:team).limit(5)
-    @critical_driver_news = DriverNews.high_impact.affects_performance.recent.includes(:driver).limit(5)
-    
-    # Recent news (all categories)
-    @recent_team_news = TeamNews.recent.includes(:team).limit(10)
-    @recent_driver_news = DriverNews.recent.includes(:driver).limit(10)
+    load_standings
+    load_races
+    load_metric_leaderboards
+    load_news
   end
 
   def driver
     @driver = Driver.find(params[:id])
     @season = @driver.season
-    
-    @results = @driver.results.joins(:race).order('races.round ASC')
-    @metrics = @driver.metrics.race_metrics.joins(:race).order('races.round ASC')
+    @results = @driver.results.joins(:race).order("races.round ASC")
+    @metrics = @driver.metrics.race_metrics.joins(:race).order("races.round ASC")
     @season_metric = @driver.metrics.season_aggregates.first
     @teammate = @driver.teammate
   end
@@ -67,9 +21,8 @@ class DashboardController < ApplicationController
   def team
     @team = Team.find(params[:id])
     @season = @team.season
-    
     @drivers = @team.drivers.active
-    @results = @team.results.joins(:race).order('races.round ASC')
+    @results = @team.results.joins(:race).order("races.round ASC")
   end
 
   def race
@@ -77,9 +30,53 @@ class DashboardController < ApplicationController
     @results = @race.results.includes(:driver).order(:final_position)
     @podium = @race.podium
     @weather_conditions = @race.weather_conditions.order(:session_type)
-    
-    # Weather analysis
     @was_wet_race = @race.was_wet_race?
     @was_wet_qualifying = @race.was_wet_qualifying?
+  end
+
+  private
+
+  def load_standings
+    @drivers = season_drivers
+    @teams = season_teams
+  end
+
+  def load_races
+    @recent_races = Race.for_season(@season).completed.limit(5)
+    @upcoming_races = Race.for_season(@season).upcoming.limit(3)
+  end
+
+  def load_metric_leaderboards
+    @top_performers = season_metric_drivers("performance_index")
+    @most_consistent = season_metric_drivers("consistency_score")
+    @hot_form = season_metric_drivers("recent_form").where("metrics.recent_form > 0")
+  end
+
+  def load_news
+    @critical_team_news = TeamNews.high_impact.affects_performance.recent.includes(:team).limit(5)
+    @critical_driver_news = DriverNews.high_impact.affects_performance.recent.includes(:driver).limit(5)
+    @recent_team_news = TeamNews.recent.includes(:team).limit(10)
+    @recent_driver_news = DriverNews.recent.includes(:driver).limit(10)
+  end
+
+  def season_drivers
+    Driver.for_season(@season).includes(:team, :results).by_points.limit(20)
+  end
+
+  def season_teams
+    Driver.for_season(@season)
+    Team.for_season(@season)
+        .includes(:drivers, :results)
+        .order(Arel.sql("(SELECT SUM(points) FROM results " \
+                        "INNER JOIN drivers ON results.driver_id = drivers.id " \
+                        "WHERE drivers.team_id = teams.id) DESC"))
+  end
+
+  def season_metric_drivers(metric_column)
+    Driver.for_season(@season)
+          .joins(:metrics)
+          .where(metrics: { race_id: nil })
+          .order(Arel.sql("metrics.#{metric_column} DESC"))
+          .limit(10)
   end
 end
