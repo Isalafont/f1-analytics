@@ -175,3 +175,8 @@ Metrics/BlockLength:
     - "db/schema.rb"
     - "lib/tasks/**/*"
   Max: 25
+
+Naming/VariableNumber:
+  Exclude:
+    - "lib/tasks/**/*"  # Rake task names with years (seed_2025) are legitimate
+
