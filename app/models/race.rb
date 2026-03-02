@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # app/models/race.rb
 class Race < ApplicationRecord
   has_many :results, dependent: :destroy
@@ -12,17 +14,17 @@ class Race < ApplicationRecord
   validates :date, presence: true
   validates :round, uniqueness: { scope: :season }
 
-  enum status: {
-    scheduled: 'scheduled',
-    in_progress: 'in_progress',
-    completed: 'completed',
-    cancelled: 'cancelled'
-  }, _prefix: true
+  enum :status, {
+    scheduled: "scheduled",
+    in_progress: "in_progress",
+    completed: "completed",
+    cancelled: "cancelled"
+  }, prefix: true
 
   scope :for_season, ->(season) { where(season: season) }
   scope :current_season, -> { for_season(Date.current.year) }
-  scope :upcoming, -> { where(status: 'scheduled').where('date >= ?', Date.current).order(:date) }
-  scope :completed, -> { where(status: 'completed').order(date: :desc) }
+  scope :upcoming, -> { where(status: "scheduled").where(date: Date.current..).order(:date) }
+  scope :completed, -> { where(status: "completed").order(date: :desc) }
   scope :by_round, -> { order(:round) }
 
   def full_name
@@ -46,11 +48,11 @@ class Race < ApplicationRecord
   end
 
   def next_race
-    Race.where(season: season).where('round > ?', round).order(:round).first
+    Race.where(season: season).where("round > ?", round).order(:round).first
   end
 
   def previous_race
-    Race.where(season: season).where('round < ?', round).order(round: :desc).first
+    Race.where(season: season).where(round: ...round).order(round: :desc).first
   end
 
   def race_weather

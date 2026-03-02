@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # app/jobs/calculate_metrics_job.rb
 class CalculateMetricsJob < ApplicationJob
   queue_as :default
@@ -10,9 +12,7 @@ class CalculateMetricsJob < ApplicationJob
     Metric.calculate_for_driver(driver, race)
 
     # Also update season aggregate if this is a race-specific calculation
-    if race
-      Metric.calculate_for_driver(driver, nil)
-    end
+    Metric.calculate_for_driver(driver, nil) if race
 
     Rails.logger.info "Calculated metrics for #{driver.display_name}#{race ? " - #{race.name}" : " (season aggregate)"}"
   end

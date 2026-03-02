@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # app/services/weather_fetcher.rb
 require "net/http"
 require "json"

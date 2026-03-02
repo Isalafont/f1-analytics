@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # app/models/team.rb
 class Team < ApplicationRecord
   has_many :drivers, dependent: :restrict_with_error

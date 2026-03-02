@@ -10,27 +10,31 @@
 ### Branches
 
 ```
-main          → Production (stable, deployable)
+main          → Production (stable, deployable, protégée)
+develop       → Intégration / staging (protégée)
 feature/*     → Nouvelles fonctionnalités
 fix/*         → Bug fixes
 chore/*       → Maintenance (deps, config)
 docs/*        → Documentation uniquement
 ```
 
-> **Pourquoi pas develop/hotfix/release?**  
-> C'est un side project perso. GitHub Flow simplifié = moins de friction, plus d'efficacité.
-
 ### Workflow
 
 ```
-main
-  └─ feature/my-feature  →  PR  →  review (1 approval Isa min)  →  main
+main (production)
+  ↑ PR develop→main : Isa obligatoire + CI vert
+develop (staging)
+  ↑ PR feature→develop : review équipe (Bender ou Data)
+feature/driver-standings   fix/openf1-timeout   chore/rubocop
 ```
 
 **Règles absolues:**
-- ❌ Jamais de push direct sur `main`
-- ✅ Une feature = une branche = une PR
-- ✅ Squash merge pour historique propre
+- ❌ Jamais de push direct sur `develop` ou `main`
+- ✅ Tout travail commence par une branche depuis `develop`
+- ✅ Nommage: `feature/xxx`, `fix/xxx`, `chore/xxx`, `docs/xxx`
+- ✅ PR `feature → develop`: 1 approval équipe (Bender ou Data)
+- ✅ PR `develop → main`: **Isa obligatoire** + CI vert (rubocop + rspec)
+- ✅ `main` = production, on ne merge que quand `develop` est propre et stable
 
 ---
 
