@@ -48,6 +48,10 @@ Metrics/ParameterLists:
 Rails:
   Enabled: true
 
+Rails/ThreeStateBooleanColumn:
+  Exclude:
+    - "db/schema.rb"
+
 Rails/HasAndBelongsToMany:
   Enabled: true
 
@@ -104,6 +108,10 @@ Naming/MethodName:
 
 Naming/VariableName:
   EnforcedStyle: snake_case
+
+Naming/VariableNumber:
+  Exclude:
+    - "lib/tasks/**/*"  # Rake task names with years (seed_2025) are legitimate
 
 Naming/AccessorMethodName:
   Enabled: true
@@ -164,5 +172,6 @@ Metrics/BlockLength:
     - "spec/**/*"
     - "config/routes.rb"
     - "db/seeds.rb"
+    - "db/schema.rb"
     - "lib/tasks/**/*"
   Max: 25
