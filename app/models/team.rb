@@ -1,0 +1,35 @@
+# app/models/team.rb
+class Team < ApplicationRecord
+  has_many :drivers, dependent: :restrict_with_error
+  has_many :results, through: :drivers
+  has_many :team_news, dependent: :destroy
+
+  validates :name, presence: true
+  validates :constructor, presence: true
+  validates :season, presence: true, numericality: { only_integer: true }
+  validates :name, uniqueness: { scope: :season }
+
+  scope :active, -> { where(active: true) }
+  scope :for_season, ->(season) { where(season: season) }
+  scope :current_season, -> { for_season(Date.current.year) }
+
+  def full_name
+    "#{name} (#{constructor})"
+  end
+
+  def driver_lineup
+    drivers.active.order(:last_name)
+  end
+
+  def total_points
+    results.sum(:points)
+  end
+
+  def recent_news
+    team_news.recent.limit(5)
+  end
+
+  def critical_news
+    team_news.high_impact.affects_performance.recent
+  end
+end

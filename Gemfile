@@ -39,8 +39,11 @@ group :development, :test do
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
   gem "brakeman", require: false
 
-  # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
-  gem "rubocop-rails-omakase", require: false
+  # RuboCop - Sandi Metz style enforcement
+  gem "rubocop", require: false
+  gem "rubocop-rails", require: false
+  gem "rubocop-rspec", require: false
+  gem "rubocop-performance", require: false
 end
 
 group :development do
@@ -53,4 +56,8 @@ group :development, :test do
   gem "rspec-rails", "~> 6.1"
   gem "factory_bot_rails"
   gem "faker"
+  gem "rubocop", require: false
+  gem "rubocop-rails", require: false
+  gem "rubocop-rspec", require: false
+  gem "rubocop-performance", require: false
 end

@@ -1,8 +1,168 @@
-# Omakase Ruby styling for Rails
-inherit_gem: { rubocop-rails-omakase: rubocop.yml }
+plugins:
+  - rubocop-rails
+  - rubocop-rspec
+  - rubocop-performance
 
-# Overwrite or add rules to create your own house style
-#
-# # Use `[a, [b, c]]` not `[ a, [ b, c ] ]`
-# Layout/SpaceInsideArrayLiteralBrackets:
-#   Enabled: false
+AllCops:
+  TargetRubyVersion: 3.3
+  NewCops: enable
+  Exclude:
+    - "db/schema.rb"
+    - "db/migrate/**/*"
+    - "bin/**/*"
+    - "vendor/**/*"
+    - "node_modules/**/*"
+    - "config/environments/**/*"
+    - "config/initializers/**/*"
+
+# ─────────────────────────────────────────────
+# SANDI METZ RULES
+# https://www.sandimetz.com/blog/2013/12/6/practical-object-oriented-design
+# ─────────────────────────────────────────────
+
+# Règle 1: Classes de 100 lignes maximum
+Metrics/ClassLength:
+  Max: 100
+  Exclude:
+    - "spec/**/*"
+
+# Règle 2: Méthodes de 5 lignes maximum (strict Sandi Metz)
+# On assouplit à 10 pour les services F1 avec logique métier
+Metrics/MethodLength:
+  Max: 10
+  Exclude:
+    - "db/**/*"
+    - "spec/**/*"
+
+# Règle 3: 4 paramètres maximum par méthode
+Metrics/ParameterLists:
+  Max: 4
+
+# Règle 4: Controllers thin (1 instance variable par action)
+# RuboCop ne peut pas forcer ça directement - voir CONTRIBUTING.md
+
+# ─────────────────────────────────────────────
+# RAILS CONVENTIONS
+# ─────────────────────────────────────────────
+
+Rails:
+  Enabled: true
+
+Rails/HasAndBelongsToMany:
+  Enabled: true
+
+Rails/HasManyOrHasOneDependent:
+  Enabled: true
+
+Rails/UniqueValidationWithoutIndex:
+  Enabled: true
+
+Rails/SkipsModelValidations:
+  Enabled: true
+
+Rails/BulkChangeTable:
+  Enabled: true
+
+# Pas de find_by_xxx (utiliser find_by(xxx: ...))
+Rails/DynamicFindBy:
+  Enabled: true
+
+# ─────────────────────────────────────────────
+# STYLE
+# ─────────────────────────────────────────────
+
+Style/Documentation:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: true
+  EnforcedStyle: always
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+Style/StringLiteralsInInterpolation:
+  EnforcedStyle: double_quotes
+
+# Préférer guard clauses (fail fast)
+Style/GuardClause:
+  Enabled: true
+  MinBodyLength: 3
+
+# Méthodes doivent être nommées avec des verbes
+# (RuboCop ne peut pas enforcer ça, voir CONTRIBUTING.md)
+
+Style/ClassAndModuleChildren:
+  EnforcedStyle: nested
+
+# ─────────────────────────────────────────────
+# NAMING
+# ─────────────────────────────────────────────
+
+Naming/MethodName:
+  EnforcedStyle: snake_case
+
+Naming/VariableName:
+  EnforcedStyle: snake_case
+
+Naming/AccessorMethodName:
+  Enabled: true
+
+# Méthodes booléennes se terminent par ?
+Naming/PredicatePrefix:
+  Enabled: true
+
+# ─────────────────────────────────────────────
+# PERFORMANCE
+# ─────────────────────────────────────────────
+
+# Éviter les map + compact (utiliser filter_map)
+Performance/MapCompact:
+  Enabled: true
+
+# ─────────────────────────────────────────────
+# COMPLEXITY
+# ─────────────────────────────────────────────
+
+Metrics/CyclomaticComplexity:
+  Max: 6
+
+Metrics/PerceivedComplexity:
+  Max: 8
+
+Metrics/AbcSize:
+  Max: 20
+  Exclude:
+    - "spec/**/*"
+
+# ─────────────────────────────────────────────
+# RSPEC
+# ─────────────────────────────────────────────
+
+RSpec/ExampleLength:
+  Max: 15
+
+RSpec/MultipleExpectations:
+  Max: 5
+
+RSpec/NestedGroups:
+  Max: 4
+
+RSpec/DescribeClass:
+  Enabled: true
+
+# Toujours utiliser let/let! plutôt que instance variables dans specs
+RSpec/InstanceVariable:
+  Enabled: true
+
+# ─────────────────────────────────────────────
+# BLOCKS
+# ─────────────────────────────────────────────
+
+Metrics/BlockLength:
+  Exclude:
+    - "spec/**/*"
+    - "config/routes.rb"
+    - "db/seeds.rb"
+    - "lib/tasks/**/*"
+  Max: 25
