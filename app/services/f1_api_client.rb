@@ -9,7 +9,8 @@ class F1ApiClient
   end
 
   def fetch_races
-    @client.sessions(year: @season).map { |s| map_session(s) }
+    sessions = @client.sessions(year: @season)
+    sessions.each_with_index.map { |s, i| map_session(s, i + 1) }
   end
 
   def fetch_race_results(round)
@@ -21,12 +22,12 @@ class F1ApiClient
 
   private
 
-  def map_session(session)
+  def map_session(session, round)
     {
       name: "#{session["country_name"]} Grand Prix",
       circuit: session["circuit_short_name"],
       country: session["country_name"],
-      round: session["round_number"],
+      round: round,
       season: @season,
       date: session["date_start"]&.then { |d| Date.parse(d) }
     }

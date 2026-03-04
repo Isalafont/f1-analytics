@@ -39,6 +39,6 @@ class Result < ApplicationRecord
   private
 
   def update_metrics
-    MetricsCalculatorJob.perform_later(driver.id, race.id)
+    CalculateMetricsJob.perform_later(driver.id, race.id)
   end
 end
