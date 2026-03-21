@@ -1,8 +1,3 @@
-# README F1 Analytics — Proposition Colette ✍️
-_Version finale — prête à merger_
-
----
-
 # F1 Analytics 🏎️
 
 > Application Rails de suivi de la saison F1 2026 avec métriques custom.  
