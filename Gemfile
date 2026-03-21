@@ -2,18 +2,21 @@
 
 source "https://rubygems.org"
 
-# Pin: Rails 8.1 requires Ruby 3.4+, we're on Ruby 3.3
-gem "rails", "~> 7.2.3"
+ruby "3.4.8"
+
+gem "rails", "~> 8.0"
 
 gem "bootsnap", require: false
 gem "importmap-rails"
 gem "propshaft"
 gem "puma", ">= 5.0"
-gem "sqlite3", ">= 1.4"
+gem "sqlite3", ">= 2.0"
 gem "stimulus-rails"
 gem "tailwindcss-rails"
 gem "turbo-rails"
 gem "tzinfo-data", platforms: %i[windows jruby]
+gem "solid_cache"
+gem "solid_queue"
 
 group :development do
   gem "web-console"

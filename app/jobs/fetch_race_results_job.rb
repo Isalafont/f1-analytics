@@ -5,6 +5,12 @@ class FetchRaceResultsJob < ApplicationJob
 
   def perform(race_id)
     race = Race.find(race_id)
+
+    if race.status == "cancelled"
+      Rails.logger.info("Race #{race.name} (Round #{race.round}) is cancelled — skipping fetch.")
+      return
+    end
+
     results_data = F1ApiClient.new(race.season).fetch_race_results(race.round)
 
     results_data.each { |data| upsert_result(race, data) }

@@ -24,7 +24,11 @@ module F1
     end
 
     def session_key_for_round(year:, round:)
-      return F1::Constants::KNOWN_SESSIONS_2025[round][:session_key] if known_session?(year, round)
+      known = known_session?(year, round)
+      if known
+        return nil if known[:status] == "cancelled" # Bahrain/Saudi 2026 annulés
+        return known[:session_key] if known[:session_key]
+      end
 
       sessions(year: year, session_name: "Race")
         .sort_by { |s| s["date_start"] }
@@ -83,7 +87,10 @@ module F1
     private
 
     def known_session?(year, round)
-      year == 2025 && F1::Constants::KNOWN_SESSIONS_2025[round]
+      case year
+      when 2025 then F1::Constants::KNOWN_SESSIONS_2025[round]
+      when 2026 then F1::Constants::KNOWN_SESSIONS_2026[round]
+      end
     end
 
     def extract_final_positions(session_key)
