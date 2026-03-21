@@ -1,85 +1,64 @@
+# README F1 Analytics — Proposition Colette ✍️
+_Version finale — prête à merger_
+
+---
+
 # F1 Analytics 🏎️
 
-> Dashboard personnel pour suivre la saison F1 2025 avec des métriques custom.  
-> Parce qu'on n'a plus Canal+, on fait mieux.
+> Application Rails de suivi de la saison F1 2026 avec métriques custom.  
+> Entièrement conçue et développée par une équipe d'agents IA. Supervisée par une humaine.
+
+**Ce repo est lui-même une démo de développement multi-agents en production.**
 
 ---
 
-## 🎯 C'est quoi?
+## 🤖 Comment c'est construit
 
-App Rails perso pour visualiser la saison F1 avec des métriques avancées qu'on ne trouve nulle part ailleurs:
+Ce projet est développé par une équipe de 5 agents IA travaillant de façon asynchrone, coordonnés via un workspace partagé :
 
-- **Performance Index** - Points pondérés par la fiabilité
-- **Consistency Score** - Variance des temps au tour
-- **Race Pace** - Positions gagnées/perdues pendant la course
-- **Quali Pace** - Performance moyenne en qualification
-- **Recent Form** - Moyenne glissante sur les 3 dernières courses
+| Agent | Rôle |
+|-------|------|
+| **Owly 🦉** | Orchestration, architecture, priorisation |
+| **Bender 🤖** | Backend — models, services, jobs, migrations |
+| **Data ✨** | Documentation, specs API, recherche |
+| **Iris 🎨** | UX/Design — maquettes, specs visuelles |
+| **Colette ✍️** | Copywriting, communication, documentation externe |
+
+Les agents se coordonnent via des fichiers structurés (`TASKS.md`, `STANDUP.md`, `LESSONS.md`). Chaque agent a sa propre mémoire et son contexte de session. Supervision humaine : Isa valide et merge.
+
+Construit avec [OpenClaw](https://github.com/openclaw/openclaw) — plateforme multi-agents IA.
 
 ---
 
-## 🛠️ Stack Technique
+## 🎯 Ce que ça fait
+
+Suit la saison F1 2026 avec des métriques absentes des classements officiels :
+
+- **Performance Index** — points pondérés par la fiabilité de la voiture (pénalise les DNF mécaniques)
+- **Consistency Score** — variance des temps au tour sur la saison
+- **Race Pace** — positions moyennes gagnées entre la grille et l'arrivée
+- **Quali Pace** — performance moyenne en qualification
+- **Recent Form** — moyenne glissante sur les 3 dernières courses
+
+Données récupérées automatiquement depuis l'[OpenF1 API](https://openf1.org) (gratuit, sans clé requise).
+
+---
+
+## 🛠️ Stack
 
 | Composant | Tech |
 |-----------|------|
-| Backend | Ruby 3.3 + Rails 7.2 |
-| DB | SQLite3 |
+| Backend | Ruby **3.4.7** + Rails **~> 8.0** |
+| Base de données | SQLite3 |
 | CSS | Tailwind CSS |
 | Assets | Propshaft |
-| Frontend | Hotwire/Turbo + Stimulus |
+| Frontend | Hotwire / Turbo / Stimulus |
 | Charts | Chart.js |
-| Jobs | Good Job |
-| Tests | RSpec + FactoryBot + Faker |
-| Data | OpenF1 API (gratuit, pas de clé requise) |
-
----
-
-## 🚀 Setup Local
-
-### Prérequis
-
-- Ruby 3.3 (`rbenv` ou `rvm`)
-- Bundler
-- SQLite3
-
-### Installation
-
-```bash
-# 1. Cloner le repo
-git clone <repo-url>
-cd f1-analytics
-
-# 2. Installer les gems
-bundle install
-
-# 3. Variables d'environnement
-cp .env.example .env
-# Éditer .env si nécessaire (OpenF1 ne requiert pas de clé!)
-
-# 4. Base de données
-bundle exec rails db:create
-bundle exec rails db:migrate
-bundle exec rails db:seed
-
-# 5. Lancer l'app
-bin/dev
-```
-
-> ⚠️ Toujours `bin/dev`, jamais `rails server` → lance Rails + Tailwind CSS watcher ensemble.
-
-Ouvrir: `http://localhost:3000`
-
----
-
-## 🗄️ Structure Base de Données
-
-```
-teams          → 10 écuries F1 2025
-drivers        → 20 pilotes 2025 (liés aux teams)
-races          → Calendrier 2025 (24 courses)
-race_results   → Résultats par pilote par course
-metrics        → Métriques custom calculées
-weather        → Données météo par course
-```
+| Background Jobs | Solid Queue |
+| Tests | RSpec ~> 6.1 + FactoryBot + Faker |
+| Linting | RuboCop + rubocop-rails + rubocop-rspec |
+| Sécurité | Brakeman |
+| Données | [OpenF1 API](https://openf1.org) |
 
 ---
 
@@ -87,99 +66,92 @@ weather        → Données météo par course
 
 ```
 app/
-├── models/          # AR models
-├── controllers/     # Thin controllers
+├── models/         # Driver, Team, Race, Result
 ├── services/
-│   └── f1/
-│       ├── open_f1_client.rb    # Client API OpenF1
-│       └── metrics_calculator.rb # Calcul métriques custom
+│   └── f1_api_client.rb       # Wrapper OpenF1 API
 ├── jobs/
-│   ├── fetch_race_results_job.rb  # Import résultats auto
-│   └── calculate_metrics_job.rb   # Calcul métriques post-course
-└── views/           # Hotwire/Turbo
+│   ├── fetch_race_results_job.rb    # Auto-déclenché après chaque GP
+│   └── calculate_metrics_job.rb     # Calcul métriques custom
+└── views/          # Dashboard Hotwire
 ```
+
+**Pipeline background jobs :**
+1. `FetchRaceResultsJob` se déclenche après chaque GP → récupère les résultats depuis OpenF1 API
+2. `CalculateMetricsJob` recalcule les 5 métriques par pilote
+3. Dashboard mis à jour via Turbo Streams
 
 ---
 
-## 📡 Source de Données
+## 🚀 Setup
 
-On utilise **OpenF1 API** (gratuit, open source):
-- Base URL: `https://api.openf1.org/v1`
-- Pas de clé API requise
-- Données depuis 2023
-- Délai live: ~3 secondes
+### Prérequis
 
-**Endpoints principaux:**
-```bash
-/v1/sessions    → Calendrier et sessions
-/v1/position    → Positions en course
-/v1/laps        → Données par tour
-/v1/pit         → Arrêts aux stands
-/v1/drivers     → Info pilotes
-```
+- Ruby 3.4.7 (`rbenv` recommandé : `rbenv install 3.4.7`)
+- Bundler (`gem install bundler`)
+- SQLite3 (`brew install sqlite3` ou `apt install libsqlite3-dev`)
+- Node.js (pour le Tailwind CSS watcher)
 
-> Documentation complète: `OPENF1_API.md`
-
----
-
-## 🧪 Tests
+### Installation
 
 ```bash
-# Tous les tests
-bundle exec rspec
+git clone https://github.com/Isalafont/f1-analytics
+cd f1-analytics
 
-# Tests par dossier
-bundle exec rspec spec/models/
-bundle exec rspec spec/services/
+bundle install
 
-# Linting
-bundle exec rubocop
+bundle exec rails db:create
+bundle exec rails db:migrate
+bundle exec rails db:seed    # Obligatoire — charge les 11 équipes, 22 pilotes, 24 rounds 2026
 
-# Security
-bundle exec brakeman
+bin/dev                      # Lance Rails + Tailwind watcher + Solid Queue
 ```
 
----
+> ⚠️ Toujours utiliser `bin/dev` (pas `rails server` seul) — il lance Rails, le Tailwind watcher et Solid Queue ensemble.
 
-## 🗺️ Roadmap
+### Variables d'environnement
 
-### V1 - MVP (En cours)
-- [ ] Dashboard pilotes + classement
-- [ ] Dashboard écuries
-- [ ] Métriques custom calculées
-- [ ] Import données via OpenF1
-
-### V2
-- [ ] Graphiques Chart.js évolution saison
-- [ ] Page détail pilote
-- [ ] Notifications Discord post-course
-- [ ] Prédictions ML basique
-
-### V3
-- [ ] Historical data 2023-2024
-- [ ] Advanced analytics
-- [ ] Déploiement VPS
+L'API OpenF1 est publique — **aucune clé requise**.  
+Pas de configuration d'environnement nécessaire pour faire tourner l'app.  
+Un fichier `.env.example` sera fourni prochainement pour les configs optionnelles.
 
 ---
 
-## 👥 Équipe
+## 📅 Saison 2026
 
-| Rôle | Qui | Responsabilité |
-|------|-----|----------------|
-| 🦉 Orchestration | Owly | Priorisation, coordination |
-| 🤖 Implémentation | Bender | Code, migrations, jobs |
-| ✨ Documentation | Data | README, specs, API docs |
-| 👩‍💻 Décisions | Isa | Review, merge, architecture |
+- 24 rounds au calendrier
+- Round 1 (Melbourne GP) terminé — données disponibles
+- Mise à jour automatique via OpenF1 au fil de la saison
+- Seeds : 11 écuries, 22 pilotes (dont Audi + Cadillac, nouveaux constructeurs 2026)
+
+---
+
+## 📸 Screenshots
+
+> *(à venir — dashboard en cours de développement)*
 
 ---
 
 ## 📚 Documentation
 
-- `CONTRIBUTING.md` - Git flow, conventions, PR process
-- `OPENF1_API.md` - Documentation complète API OpenF1
-- `TASKS.md` - Backlog et tâches en cours
-- `LESSONS.md` - Leçons apprises en équipe
+- `CONTRIBUTING.md` — Git flow, conventions, process PR
+- `OPENF1_API.md` — Documentation complète API OpenF1
+- `TASKS.md` — Backlog et tâches en cours
+- `LESSONS.md` — Leçons apprises en équipe
 
 ---
 
-_Projet démarré: Mars 2026 | Stack: Rails 7.2 + Ruby 3.3_
+## 👥 Équipe
+
+| Rôle | Agent | Responsabilité |
+|------|-------|----------------|
+| Orchestration | Owly 🦉 | Priorisation, coordination |
+| Implémentation | Bender 🤖 | Code, migrations, jobs |
+| Documentation | Data ✨ | Specs API, recherche |
+| Design | Iris 🎨 | UX/UI, maquettes, specs visuelles |
+| Communication | Colette ✍️ | Copywriting, README, personal brand |
+| Supervision | Isa 👩‍💻 | Review, merge, architecture |
+
+---
+
+_Projet démarré : Mars 2026 — Stack : Rails 8.0 + Ruby 3.4.7 + OpenClaw_  
+_Questions sur le setup multi-agents ? → [isalafont.netlify.app](https://isalafont.netlify.app)_
