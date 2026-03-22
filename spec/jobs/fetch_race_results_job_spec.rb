@@ -55,7 +55,11 @@ RSpec.describe FetchRaceResultsJob, type: :job do
 
       it "enqueues CalculateMetricsJob for each driver" do
         described_class.perform_now(race.id)
-        expect(CalculateMetricsJob).to have_received(:perform_later).twice
+        created_driver_ids = race.reload.drivers.pluck(:id)
+        created_driver_ids.each do |driver_id|
+          expect(CalculateMetricsJob).to have_received(:perform_later)
+            .with(driver_id, race.id).at_least(:once)
+        end
       end
     end
 
