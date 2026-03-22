@@ -24,9 +24,13 @@
 
 ### API & Data
 - [x] Migrer F1ApiClient vers OpenF1 (Ergast est mort) (Owner: Bender 🤖 | Done: 2026-03-01 ✅)
+- [ ] **[URGENT]** Migrer données 2025 → 2026 (saison active = 2026)
+- [ ] **[URGENT]** Mettre à jour calendrier 2026 (24 → 22 courses: Bahrain + Saudi Arabia annulés)
+- [ ] Seed pilotes/équipes 2026 (vérifier changements vs 2025)
+- [ ] Seed résultats Chinese GP 2026 (Round 1 ou 2?) via OpenF1
+- [ ] Seed grille départ qualifs China: Antonelli P1, Russell P2, Hamilton P3, Leclerc P4
 - [ ] Job: FetchRaceResultsJob (auto post-course)
-- [ ] Rake task: fetch résultats saison complète 2025
-- [ ] Seed résultats des courses déjà passées (round 1-3)
+- [ ] Rake task: fetch résultats saison complète 2026
 
 ### UI/UX
 - [ ] Layout dashboard dark theme F1 (#1a1a1a + rouge #e10600)
@@ -82,4 +86,9 @@ Format d'une tâche In Progress:
 
 ---
 
-_Créé: 2026-03-01 | Mis à jour: 2026-03-01_
+_Créé: 2026-03-01 | Mis à jour: 2026-03-15_
+
+## 📰 News F1 2026 (2026-03-15)
+- **Chinese GP Qualifs:** Antonelli pole (Mercedes, 19 ans — record historique !), Russell P2, Hamilton P3
+- **Annulations:** Bahrain GP + Saudi Arabian GP annulés (conflit Moyen-Orient) → saison = 22 courses
+- **Action:** Mettre à jour le seed calendrier + migrer app vers données 2026

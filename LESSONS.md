@@ -41,4 +41,22 @@
 
 ---
 
+## 2026-03-21
+
+### ⚠️ L4 - Exécution Rails → déléguer à Owly
+**Qui:** Bender 🤖  
+**Ce qui s'est passé:** Bender a essayé de lancer `bundle install` + `rails db:seed` depuis son sandbox — réseau coupé, impossible. Owly a dû exécuter depuis le VPS.  
+**Règle:** Toute exécution Rails (bundle install, db:seed, migrations, rails console) → **déléguer à Owly (agent main)**. Bender et Data analysent le code, Owly exécute.  
+**Check avant d'agir:** Bender ne lance jamais de commandes Rails. Il prépare les fichiers et passe la main.
+
+---
+
+### ⚠️ L5 - RSpec + RuboCop + Brakeman must pass avant toute PR
+**Qui:** Bender 🤖 (rappel Isa 2026-03-21)  
+**Ce qui s'est passé:** Bender a préparé des corrections RuboCop sans vérifier que les tests RSpec passaient. Owly a failli faire une PR avec des offenses restantes.  
+**Règle:** **Aucune PR n'est prête tant que RSpec + RuboCop + Brakeman ne passent pas tous les trois.** Zéro exception.  
+**Check avant d'agir:** `bundle exec rspec && bundle exec rubocop && bundle exec brakeman -q` → tout vert → PR ok.
+
+---
+
 _Créé: 2026-03-01 | Maintenu par toute l'équipe_
