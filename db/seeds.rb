@@ -186,3 +186,92 @@ Rails.logger.info "     #{races_data.size} races seeded " \
 Rails.logger.info ""
 Rails.logger.info "✅ Seeds F1 2026 OK — #{teams.size} teams, #{drivers_data.size} drivers, #{races_data.size} rounds"
 Rails.logger.info "⚠️  Valider avec Isa avant rails db:seed en prod!"
+
+# ─────────────────────────────────────────────
+# RESULTS — R1 + R2 2026 (source: OpenF1 /v1/position, dernière entrée par pilote)
+# Récupérés le 2026-03-22 par Bender 🤖
+# R3 Japan (2026-03-29) pas encore disputé → pas seedé
+# R4/R5 annulés → pas seedé
+# ─────────────────────────────────────────────
+
+Rails.logger.info "  → Results R1 + R2..."
+
+def seed_results(race, results_data)
+  results_data.each do |driver_number, final_position|
+    driver = Driver.find_by(number: driver_number, season: SEASON)
+    unless driver
+      Rails.logger.warn "    ⚠️  Driver ##{driver_number} not found — skipping"
+      next
+    end
+
+    points = F1::Constants::POINTS_MAP.fetch(final_position, 0)
+
+    Result.find_or_create_by!(race: race, driver: driver) do |r|
+      r.final_position = final_position
+      r.points         = points
+      r.status         = "Finished"
+    end
+  end
+end
+
+# R1 — Australian GP (session_key 11234, 2026-03-08)
+# Source: OpenF1 /v1/position — dernière position connue par driver_number
+r1 = Race.find_by!(season: SEASON, round: 1)
+r1_results = {
+  63 => 1,  # Russell
+  12 => 2,  # Antonelli
+  16 => 3,  # Leclerc
+  44 => 4,  # Hamilton
+  1 => 5,  # Norris
+  3 => 6,  # Verstappen
+  87 => 7,  # Bearman
+  41 => 8,  # Lindblad
+  5 => 9, # Bortoleto
+  10 => 10, # Gasly
+  31 => 11, # Ocon
+  23 => 12, # Albon
+  30 => 13, # Lawson
+  43 => 14, # Colapinto
+  55 => 15, # Sainz
+  11 => 16, # Pérez
+  18 => 17, # Stroll
+  14 => 18, # Alonso
+  77 => 19, # Bottas
+  6 => 20, # Hadjar
+  81 => 21, # Piastri
+  27 => 22  # Hülkenberg
+}
+seed_results(r1, r1_results)
+Rails.logger.info "     R1 Australia: #{r1_results.size} results OK"
+
+# R2 — Chinese GP (session_key 11245, 2026-03-15)
+r2 = Race.find_by!(season: SEASON, round: 2)
+r2_results = {
+  12 => 1,  # Antonelli
+  63 => 2,  # Russell
+  44 => 3,  # Hamilton
+  16 => 4,  # Leclerc
+  87 => 5,  # Bearman
+  10 => 6,  # Gasly
+  30 => 7,  # Lawson
+  6 => 8, # Hadjar
+  55 => 9,  # Sainz
+  43 => 10, # Colapinto
+  27 => 11, # Hülkenberg
+  41 => 12, # Lindblad
+  77 => 13, # Bottas
+  31 => 14, # Ocon
+  11 => 15, # Pérez
+  3 => 16, # Verstappen
+  14 => 17, # Alonso
+  18 => 18, # Stroll
+  81 => 19, # Piastri
+  1 => 20, # Norris
+  5 => 21, # Bortoleto
+  23 => 22 # Albon
+}
+seed_results(r2, r2_results)
+Rails.logger.info "     R2 China: #{r2_results.size} results OK"
+
+Rails.logger.info ""
+Rails.logger.info "✅ Results seedés : R1 Australian GP + R2 Chinese GP (#{r1_results.size + r2_results.size} entrées)"
