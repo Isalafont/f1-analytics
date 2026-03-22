@@ -6,16 +6,24 @@ class FetchRaceResultsJob < ApplicationJob
   def perform(race_id)
     race = Race.find(race_id)
 
-    if race.status == "cancelled"
+    if race.status_cancelled?
       Rails.logger.info("Race #{race.name} (Round #{race.round}) is cancelled — skipping fetch.")
       return
     end
 
-    results_data = F1ApiClient.new(race.season).fetch_race_results(race.round)
+    client = F1::OpenF1Client.new
+    session_key = client.session_key_for_round(year: race.season, round: race.round)
+
+    if session_key.nil?
+      Rails.logger.info("No session key for #{race.name} (Round #{race.round}) — skipping fetch.")
+      return
+    end
+
+    results_data = client.race_results(session_key: session_key)
 
     results_data.each { |data| upsert_result(race, data) }
 
-    race.update(status: "completed")
+    race.update!(status: :completed)
     race.drivers.each { |driver| CalculateMetricsJob.perform_later(driver.id, race.id) }
 
     Rails.logger.info("Fetched results for #{race.name} - #{results_data.size} drivers")
