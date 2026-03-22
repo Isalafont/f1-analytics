@@ -1,0 +1,68 @@
+<%# ─────────────────────────────────────────────────────────────────
+    F1 Analytics — Composants UI de base (dark theme)
+    Spec: /shared/design/specs/f1-dark-theme-tokens-2026-03-22.md
+    Implémenté par Bender 🤖 — ticket #44
+    ──────────────────────────────────────────────────────────────── %>
+
+<%# ── CARD ────────────────────────────────────────────────────────
+<div class="bg-f1-bg-surface rounded-card border border-f1-border shadow-card
+            hover:shadow-card-hover hover:border-f1-border-accent
+            transition-all duration-200 p-5">
+  <%# contenu %>
+</div>
+
+── METRIC CARD (KPI stat) ──────────────────────────────────────────
+<div class="bg-f1-bg-surface rounded-card border border-f1-border p-5">
+  <p class="text-label text-f1-text-secondary uppercase tracking-widest mb-2">Total Races</p>
+  <p class="text-metric-lg font-data text-f1-teal">24</p>
+</div>
+
+── SECTION HEADER ──────────────────────────────────────────────────
+<div class="flex items-center gap-3 mb-5">
+  <h2 class="text-xl font-semibold text-f1-text-primary">Driver Standings</h2>
+  <div class="flex-1 h-px bg-f1-red opacity-60"></div>
+</div>
+
+── TABLE ───────────────────────────────────────────────────────────
+<table class="w-full">
+  <thead>
+    <tr class="bg-f1-red">
+      <th class="px-4 py-3 text-left text-label text-white uppercase tracking-wider">Pos</th>
+      <th class="px-4 py-3 text-left text-label text-white uppercase tracking-wider">Driver</th>
+      <th class="px-4 py-3 text-left text-label text-white uppercase tracking-wider">Team</th>
+      <th class="px-4 py-3 text-right text-label text-white uppercase tracking-wider">Pts</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="border-b border-f1-border hover:bg-f1-bg-elevated transition-colors duration-150">
+      <td class="px-4 py-3 font-bold font-data">
+        <%# badge position — voir ci-dessous %>
+      </td>
+      <td class="px-4 py-3 text-f1-text-primary">George Russell</td>
+      <td class="px-4 py-3">
+        <%# badge écurie — voir ci-dessous %>
+      </td>
+      <td class="px-4 py-3 font-bold text-f1-teal font-data text-right">97</td>
+    </tr>
+  </tbody>
+</table>
+
+── BADGE POSITION (podium) ─────────────────────────────────────────
+P1 : <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-f1-gold text-f1-text-inverse text-sm font-bold">1</span>
+P2 : <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-f1-silver text-f1-text-inverse text-sm font-bold">2</span>
+P3 : <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-f1-bronze text-f1-text-inverse text-sm font-bold">3</span>
+P4+: <span class="text-f1-text-secondary font-data font-bold">4</span>
+⚠️  Bronze = indicateurs graphiques ≥ 18px bold uniquement, jamais texte de tableau (contraste 3.8:1)
+
+── BADGE ÉCURIE (style= inline obligatoire) ────────────────────────
+<span class="inline-block px-2 py-0.5 rounded text-xs font-medium text-f1-text-inverse"
+      style="background-color: var(--f1-team-<%= team.tailwind_key %>)">
+  <%= team.name %>
+</span>
+⚠️  Haas (#B6BABD) et Cadillac (#FFFFFF) : ne pas afficher de texte sur fond sombre — badges visuels seulement
+
+── LIEN / BOUTON INTERACTIF (focus accessible) ─────────────────────
+<a href="..." class="... focus-visible:ring-2 focus-visible:ring-f1-teal focus-visible:outline-none">
+  ...
+</a>
+%>

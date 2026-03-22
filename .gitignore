@@ -37,7 +37,8 @@
 
 /app/assets/builds/*
 !/app/assets/builds/.keep
-vendor/
+/vendor/bundle
+!vendor/javascript/
 
 # Agent coordination files (internal, not part of the project)
 LESSONS.md

@@ -1,1 +1,39 @@
 /* Application styles */
+
+:root {
+  /* Backgrounds */
+  --f1-bg-base:     #0D0D0D;
+  --f1-bg-surface:  #1A1A1A;
+  --f1-bg-elevated: #242424;
+  --f1-bg-overlay:  #2E2E2E;
+
+  /* Text */
+  --f1-text-primary:   #F5F5F5;
+  --f1-text-secondary: #A0A0A0;
+  --f1-text-muted:     #606060;
+
+  /* Accents */
+  --f1-red:    #E10600;
+  --f1-teal:   #27F4D2;
+  --f1-gold:   #FFD700;
+  --f1-silver: #C0C0C0;
+  --f1-bronze: #CD7F32;
+
+  /* Borders */
+  --f1-border:        #2E2E2E;
+  --f1-border-accent: #E10600;
+
+  /* Teams — utilisées via style= inline (badges, charts) */
+  --f1-team-redbull:     #3671C6;
+  --f1-team-ferrari:     #E8002D;
+  --f1-team-mclaren:     #FF8000;
+  --f1-team-mercedes:    #27F4D2;
+  --f1-team-astonmartin: #229971;
+  --f1-team-alpine:      #0093CC;
+  --f1-team-haas:        #B6BABD;
+  --f1-team-rb:          #6692FF;
+  --f1-team-sauber:      #52E252;
+  --f1-team-williams:    #64C4FF;
+  --f1-team-audi:        #E2E61A;
+  --f1-team-cadillac:    #FFFFFF;
+}
