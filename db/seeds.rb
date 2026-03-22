@@ -18,13 +18,13 @@
 
 SEASON = 2026
 
-puts "🏎️  Seeding F1 #{SEASON}..."
+Rails.logger.info "🏎️  Seeding F1 #{SEASON}..."
 
 # ─────────────────────────────────────────────
 # TEAMS (11 constructeurs 2026)
 # ─────────────────────────────────────────────
 
-puts "  → Teams..."
+Rails.logger.info "  → Teams..."
 
 teams_data = [
   { name: "McLaren",       constructor: "McLaren",       color_primary: "#FF8000", color_secondary: "#000000" },
@@ -45,49 +45,57 @@ teams = teams_data.each_with_object({}) do |attrs, hash|
     t.constructor    = attrs[:constructor]
     t.color_primary  = attrs[:color_primary]
     t.color_secondary = attrs[:color_secondary]
-    t.active         = true
+    t.active = true
   end
   hash[attrs[:name]] = team
 end
 
-puts "     #{teams.size} teams OK"
+Rails.logger.info "     #{teams.size} teams OK"
 
 # ─────────────────────────────────────────────
 # DRIVERS (22 pilotes 2026)
 # ─────────────────────────────────────────────
 
-puts "  → Drivers..."
+Rails.logger.info "  → Drivers..."
 
 drivers_data = [
   # McLaren
-  { first_name: "Lando",    last_name: "Norris",     number: 4,  code: "NOR", nationality: "British",    team: "McLaren" },
-  { first_name: "Oscar",    last_name: "Piastri",    number: 81, code: "PIA", nationality: "Australian", team: "McLaren" },
+  { first_name: "Lando",    last_name: "Norris",     number: 1,  code: "NOR", nationality: "British", team: "McLaren" }, # #1 = champion 2025
+  { first_name: "Oscar",    last_name: "Piastri",    number: 81, code: "PIA", nationality: "Australian",
+    team: "McLaren" },
   # Ferrari
-  { first_name: "Charles",  last_name: "Leclerc",    number: 16, code: "LEC", nationality: "Monégasque", team: "Ferrari" },
+  { first_name: "Charles",  last_name: "Leclerc",    number: 16, code: "LEC", nationality: "Monégasque",
+    team: "Ferrari" },
   { first_name: "Lewis",    last_name: "Hamilton",   number: 44, code: "HAM", nationality: "British",    team: "Ferrari" }, # ← Ferrari en 2026!
   # Red Bull
-  { first_name: "Max",      last_name: "Verstappen", number: 33, code: "VER", nationality: "Dutch",      team: "Red Bull" },
+  { first_name: "Max",      last_name: "Verstappen", number: 3,  code: "VER", nationality: "Dutch",      team: "Red Bull" }, # #3 confirmé OpenF1 2026
   { first_name: "Isack",    last_name: "Hadjar",     number: 6,  code: "HAD", nationality: "French",     team: "Red Bull" }, # ← nouveau (ex-Racing Bulls)
   # Mercedes
-  { first_name: "George",   last_name: "Russell",    number: 63, code: "RUS", nationality: "British",    team: "Mercedes" },
-  { first_name: "Kimi",     last_name: "Antonelli",  number: 12, code: "ANT", nationality: "Italian",    team: "Mercedes" }, # ← nouveau (remplace Hamilton)
+  { first_name: "George",   last_name: "Russell",    number: 63, code: "RUS", nationality: "British",
+    team: "Mercedes" },
+  { first_name: "Kimi",     last_name: "Antonelli",  number: 12, code: "ANT", nationality: "Italian", team: "Mercedes" }, # ← nouveau (remplace Hamilton)
   # Aston Martin
-  { first_name: "Fernando", last_name: "Alonso",     number: 14, code: "ALO", nationality: "Spanish",    team: "Aston Martin" },
-  { first_name: "Lance",    last_name: "Stroll",     number: 18, code: "STR", nationality: "Canadian",   team: "Aston Martin" },
+  { first_name: "Fernando", last_name: "Alonso",     number: 14, code: "ALO", nationality: "Spanish",
+    team: "Aston Martin" },
+  { first_name: "Lance",    last_name: "Stroll",     number: 18, code: "STR", nationality: "Canadian",
+    team: "Aston Martin" },
   # Alpine
-  { first_name: "Pierre",   last_name: "Gasly",      number: 10, code: "GAS", nationality: "French",     team: "Alpine" },
+  { first_name: "Pierre",   last_name: "Gasly",      number: 10, code: "GAS", nationality: "French",
+    team: "Alpine" },
   { first_name: "Franco",   last_name: "Colapinto",  number: 43, code: "COL", nationality: "Argentinian", team: "Alpine" }, # ← confirmé full-time
   # Haas
   { first_name: "Esteban",  last_name: "Ocon",       number: 31, code: "OCO", nationality: "French",     team: "Haas" }, # ← ex-Alpine
   { first_name: "Oliver",   last_name: "Bearman",    number: 87, code: "BEA", nationality: "British",    team: "Haas" }, # ← confirmé full-time
   # Racing Bulls
-  { first_name: "Liam",     last_name: "Lawson",     number: 30, code: "LAW", nationality: "New Zealander", team: "Racing Bulls" },
-  { first_name: "Arvid",    last_name: "Lindblad",   number: 45, code: "LIN", nationality: "British",    team: "Racing Bulls" }, # ← rookie 2026
+  { first_name: "Liam",     last_name: "Lawson",     number: 30, code: "LAW", nationality: "New Zealander",
+    team: "Racing Bulls" },
+  { first_name: "Arvid",    last_name: "Lindblad",   number: 41, code: "LIN", nationality: "British",    team: "Racing Bulls" }, # ← rookie 2026, #41 confirmé OpenF1
   # Williams
   { first_name: "Carlos",   last_name: "Sainz",      number: 55, code: "SAI", nationality: "Spanish",    team: "Williams" }, # ← ex-Ferrari
-  { first_name: "Alex",     last_name: "Albon",      number: 23, code: "ALB", nationality: "Thai",       team: "Williams" },
+  { first_name: "Alex",     last_name: "Albon",      number: 23, code: "ALB", nationality: "Thai",
+    team: "Williams" },
   # Audi (ex-Sauber)
-  { first_name: "Nico",     last_name: "Hülkenberg",  number: 27, code: "HUL", nationality: "German",    team: "Audi" },
+  { first_name: "Nico",     last_name: "Hülkenberg", number: 27, code: "HUL", nationality: "German", team: "Audi" },
   { first_name: "Gabriel",  last_name: "Bortoleto",  number: 5,  code: "BOR", nationality: "Brazilian",  team: "Audi" },
   # Cadillac (nouveau)
   { first_name: "Sergio",   last_name: "Pérez",      number: 11, code: "PER", nationality: "Mexican",    team: "Cadillac" }, # ← ex-Red Bull
@@ -105,40 +113,61 @@ drivers_data.each do |attrs|
   end
 end
 
-puts "     #{drivers_data.size} drivers OK"
+Rails.logger.info "     #{drivers_data.size} drivers OK"
 
 # ─────────────────────────────────────────────
 # RACES — Calendrier 2026 (24 rounds, 2 annulés)
 # ─────────────────────────────────────────────
 
-puts "  → Races..."
+Rails.logger.info "  → Races..."
 
 races_data = [
   # Données confirmées via OpenF1 API + formula1.com (2026-03-15)
-  { round: 1,  name: "Australian Grand Prix",         circuit: "Albert Park",                   country: "Australia",    date: "2026-03-08", status: "completed" },
-  { round: 2,  name: "Chinese Grand Prix",            circuit: "Shanghai International",        country: "China",        date: "2026-03-15", status: "scheduled" },
-  { round: 3,  name: "Japanese Grand Prix",           circuit: "Suzuka",                        country: "Japan",        date: "2026-03-29", status: "scheduled" },
+  { round: 1,  name: "Australian Grand Prix",         circuit: "Albert Park",
+    country: "Australia",    date: "2026-03-08", status: "completed" },
+  { round: 2,  name: "Chinese Grand Prix",            circuit: "Shanghai International",
+    country: "China",        date: "2026-03-15", status: "completed" },
+  { round: 3,  name: "Japanese Grand Prix",           circuit: "Suzuka",
+    country: "Japan",        date: "2026-03-29", status: "scheduled" },
   { round: 4,  name: "Bahrain Grand Prix",            circuit: "Bahrain International",         country: "Bahrain",      date: "2026-04-12", status: "cancelled" }, # ← ANNULÉ
   { round: 5,  name: "Saudi Arabian Grand Prix",      circuit: "Jeddah Corniche",               country: "Saudi Arabia", date: "2026-04-19", status: "cancelled" }, # ← ANNULÉ
-  { round: 6,  name: "Miami Grand Prix",              circuit: "Miami International",           country: "USA",          date: "2026-05-03", status: "scheduled" },
-  { round: 7,  name: "Canadian Grand Prix",           circuit: "Circuit Gilles Villeneuve",     country: "Canada",       date: "2026-05-24", status: "scheduled" },
-  { round: 8,  name: "Monaco Grand Prix",             circuit: "Circuit de Monaco",             country: "Monaco",       date: "2026-06-07", status: "scheduled" },
-  { round: 9,  name: "Spanish Grand Prix",            circuit: "Circuit de Barcelona-Catalunya", country: "Spain",       date: "2026-06-14", status: "scheduled" },
-  { round: 10, name: "Austrian Grand Prix",           circuit: "Red Bull Ring",                 country: "Austria",      date: "2026-06-28", status: "scheduled" },
-  { round: 11, name: "British Grand Prix",            circuit: "Silverstone",                   country: "Great Britain", date: "2026-07-05", status: "scheduled" },
-  { round: 12, name: "Belgian Grand Prix",            circuit: "Circuit de Spa-Francorchamps",  country: "Belgium",      date: "2026-07-19", status: "scheduled" },
-  { round: 13, name: "Hungarian Grand Prix",          circuit: "Hungaroring",                   country: "Hungary",      date: "2026-07-26", status: "scheduled" },
-  { round: 14, name: "Dutch Grand Prix",              circuit: "Circuit Zandvoort",             country: "Netherlands",  date: "2026-08-23", status: "scheduled" },
-  { round: 15, name: "Italian Grand Prix",            circuit: "Autodromo Nazionale Monza",     country: "Italy",        date: "2026-09-06", status: "scheduled" },
-  { round: 16, name: "Madrid Grand Prix",             circuit: "Madring",                       country: "Spain",        date: "2026-09-13", status: "scheduled" }, # Nouveau circuit Madrid
-  { round: 17, name: "Azerbaijan Grand Prix",         circuit: "Baku City Circuit",             country: "Azerbaijan",   date: "2026-09-26", status: "scheduled" },
-  { round: 18, name: "Singapore Grand Prix",          circuit: "Marina Bay Street Circuit",     country: "Singapore",    date: "2026-10-11", status: "scheduled" },
-  { round: 19, name: "United States Grand Prix",      circuit: "Circuit of the Americas",       country: "USA",          date: "2026-10-25", status: "scheduled" },
-  { round: 20, name: "Mexico City Grand Prix",        circuit: "Autodromo Hermanos Rodriguez",  country: "Mexico",       date: "2026-11-01", status: "scheduled" },
-  { round: 21, name: "São Paulo Grand Prix",          circuit: "Autodromo Jose Carlos Pace",    country: "Brazil",       date: "2026-11-08", status: "scheduled" },
-  { round: 22, name: "Las Vegas Grand Prix",          circuit: "Las Vegas Strip Circuit",       country: "USA",          date: "2026-11-21", status: "scheduled" },
-  { round: 23, name: "Qatar Grand Prix",              circuit: "Losail International",          country: "Qatar",        date: "2026-11-29", status: "scheduled" },
-  { round: 24, name: "Abu Dhabi Grand Prix",          circuit: "Yas Marina",                    country: "UAE",          date: "2026-12-06", status: "scheduled" }
+  { round: 6,  name: "Miami Grand Prix",              circuit: "Miami International",
+    country: "USA",          date: "2026-05-03", status: "scheduled" },
+  { round: 7,  name: "Canadian Grand Prix",           circuit: "Circuit Gilles Villeneuve",
+    country: "Canada",       date: "2026-05-24", status: "scheduled" },
+  { round: 8,  name: "Monaco Grand Prix",             circuit: "Circuit de Monaco",
+    country: "Monaco",       date: "2026-06-07", status: "scheduled" },
+  { round: 9,  name: "Spanish Grand Prix",            circuit: "Circuit de Barcelona-Catalunya",
+    country: "Spain", date: "2026-06-14", status: "scheduled" },
+  { round: 10, name: "Austrian Grand Prix",           circuit: "Red Bull Ring",
+    country: "Austria", date: "2026-06-28", status: "scheduled" },
+  { round: 11, name: "British Grand Prix",            circuit: "Silverstone",
+    country: "Great Britain", date: "2026-07-05", status: "scheduled" },
+  { round: 12, name: "Belgian Grand Prix",            circuit: "Circuit de Spa-Francorchamps",
+    country: "Belgium",      date: "2026-07-19", status: "scheduled" },
+  { round: 13, name: "Hungarian Grand Prix",          circuit: "Hungaroring",
+    country: "Hungary",      date: "2026-07-26", status: "scheduled" },
+  { round: 14, name: "Dutch Grand Prix",              circuit: "Circuit Zandvoort",
+    country: "Netherlands",  date: "2026-08-23", status: "scheduled" },
+  { round: 15, name: "Italian Grand Prix",            circuit: "Autodromo Nazionale Monza",
+    country: "Italy",        date: "2026-09-06", status: "scheduled" },
+  { round: 16, name: "Madrid Grand Prix",             circuit: "Madring", country: "Spain", date: "2026-09-13", status: "scheduled" }, # Nouveau circuit Madrid
+  { round: 17, name: "Azerbaijan Grand Prix",         circuit: "Baku City Circuit",
+    country: "Azerbaijan",   date: "2026-09-26", status: "scheduled" },
+  { round: 18, name: "Singapore Grand Prix",          circuit: "Marina Bay Street Circuit",
+    country: "Singapore",    date: "2026-10-11", status: "scheduled" },
+  { round: 19, name: "United States Grand Prix",      circuit: "Circuit of the Americas",
+    country: "USA",          date: "2026-10-25", status: "scheduled" },
+  { round: 20, name: "Mexico City Grand Prix",        circuit: "Autodromo Hermanos Rodriguez",
+    country: "Mexico",       date: "2026-11-01", status: "scheduled" },
+  { round: 21, name: "São Paulo Grand Prix",          circuit: "Autodromo Jose Carlos Pace",
+    country: "Brazil",       date: "2026-11-08", status: "scheduled" },
+  { round: 22, name: "Las Vegas Grand Prix",          circuit: "Las Vegas Strip Circuit",
+    country: "USA",          date: "2026-11-21", status: "scheduled" },
+  { round: 23, name: "Qatar Grand Prix",              circuit: "Losail International",
+    country: "Qatar",        date: "2026-11-29", status: "scheduled" },
+  { round: 24, name: "Abu Dhabi Grand Prix",          circuit: "Yas Marina",
+    country: "UAE",          date: "2026-12-06", status: "scheduled" }
   # R4 + R5 "Called Off" = 22 courses effectives, 24 rounds au total (numérotation officielle conservée)
 ]
 
@@ -152,7 +181,8 @@ races_data.each do |attrs|
   end
 end
 
-puts "     #{races_data.size} races seeded (#{races_data.count { |r| r[:status] == 'cancelled' }} annulées)"
-puts ""
-puts "✅ Seeds F1 2026 OK — #{teams.size} teams, #{drivers_data.size} drivers, #{races_data.size} rounds"
-puts "⚠️  Valider avec Isa avant rails db:seed en prod!"
+Rails.logger.info "     #{races_data.size} races seeded " \
+                  "(#{races_data.count { |r| r[:status] == "cancelled" }} annulées)"
+Rails.logger.info ""
+Rails.logger.info "✅ Seeds F1 2026 OK — #{teams.size} teams, #{drivers_data.size} drivers, #{races_data.size} rounds"
+Rails.logger.info "⚠️  Valider avec Isa avant rails db:seed en prod!"

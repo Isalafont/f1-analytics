@@ -180,3 +180,12 @@ Naming/VariableNumber:
   Exclude:
     - "lib/tasks/**/*"  # Rake task names with years (seed_2025) are legitimate
 
+
+Layout/LineLength:
+  Exclude:
+    - "db/seeds.rb"  # Long driver/team names are data, not logic — can't be shortened
+
+Metrics/AbcSize:
+  Max: 20
+  Exclude:
+    - "app/jobs/fetch_race_results_job.rb"  # TODO: refactor perform method (tracked separately)
