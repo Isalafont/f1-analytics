@@ -103,10 +103,22 @@ module F1
       driver = driver_index[driver_number] || {}
       final_pos = position_data["position"]
 
-      { driver_number: driver_number, driver_code: driver["name_acronym"],
-        driver_first_name: driver["first_name"], driver_last_name: driver["last_name"],
-        team_name: driver["team_name"], final_position: final_pos,
-        points: F1::Constants::POINTS_MAP[final_pos] || 0, session_key: session_key }
+      {
+        driver_number: driver_number,
+        driver_code: driver["name_acronym"],
+        driver_first_name: driver["first_name"],
+        driver_last_name: driver["last_name"],
+        driver_nationality: driver["country_code"],
+        team_name: driver["team_name"],
+        final_position: final_pos,
+        points: F1::Constants::POINTS_MAP[final_pos] || 0,
+        status: "Finished",
+        grid_position: nil, # non disponible via /v1/position — requiert /v1/laps ou qualifying
+        laps_completed: nil, # non disponible via /v1/position
+        fastest_lap_time: nil, # à enrichir via FetchLapMetricsJob si besoin
+        fastest_lap_rank: nil,
+        session_key: session_key
+      }
     end
 
     def final_position(session_key:, driver_number:)

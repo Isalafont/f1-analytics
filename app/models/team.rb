@@ -15,6 +15,27 @@ class Team < ApplicationRecord
   scope :for_season, ->(season) { where(season: season) }
   scope :current_season, -> { for_season(Date.current.year) }
 
+  # Clé CSS pour les tokens --f1-team-* (tailwind.config.js + application.css)
+  # Utilisé dans les vues : style="background-color: var(--f1-team-<%= team.tailwind_key %>)"
+  TAILWIND_KEY_MAP = {
+    "Red Bull Racing" => "redbull",
+    "Ferrari" => "ferrari",
+    "McLaren" => "mclaren",
+    "Mercedes" => "mercedes",
+    "Aston Martin" => "astonmartin",
+    "Alpine" => "alpine",
+    "Haas" => "haas",
+    "RB" => "rb",
+    "Kick Sauber" => "sauber",
+    "Williams" => "williams",
+    "Audi" => "audi",
+    "Cadillac" => "cadillac"
+  }.freeze
+
+  def tailwind_key
+    TAILWIND_KEY_MAP.fetch(name, name.downcase.gsub(/\s+/, ""))
+  end
+
   def full_name
     "#{name} (#{constructor})"
   end
