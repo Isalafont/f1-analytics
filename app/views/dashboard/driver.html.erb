@@ -1,0 +1,211 @@
+<%# app/views/dashboard/driver.html.erb — Issue #44 dark theme — Bender 🤖 %>
+<% content_for :title, "#{@driver.full_name} — F1 Analytics" %>
+
+<div class="w-full">
+
+  <%# ── Back link ────────────────────────────────────────────────── %>
+  <%= link_to "← Dashboard", root_path,
+      class: "text-f1-text-muted hover:text-f1-text-secondary text-sm transition-colors duration-150 mb-6 inline-block focus-visible:ring-2 focus-visible:ring-f1-teal focus-visible:outline-none" %>
+
+  <%# ── Driver header ────────────────────────────────────────────── %>
+  <div class="bg-f1-bg-surface rounded-card border border-f1-border shadow-card p-6 mb-6">
+    <%# Issue #46 — flex-col mobile, flex-row desktop %>
+    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+      <div>
+        <p class="text-label text-f1-text-muted uppercase tracking-widest mb-1">
+          #<%= @driver.number %> · Season <%= @driver.season %>
+        </p>
+        <%# Issue #46 — responsive H1 %>
+        <h1 class="text-2xl sm:text-3xl font-bold text-f1-text-primary mb-2" style="font-family: 'Barlow', sans-serif;">
+          <%= @driver.full_name %>
+        </h1>
+        <span class="inline-block px-3 py-1 rounded text-sm font-medium text-f1-text-inverse"
+              style="background-color: var(--f1-team-<%= @driver.team.tailwind_key %>)">
+          <%= @driver.team.name %>
+        </span>
+        <% if @driver.code.present? %>
+          <span class="ml-2 font-data text-f1-text-muted text-sm"><%= @driver.code %></span>
+        <% end %>
+      </div>
+      <%# Points: sm:text-right (below on mobile, right on desktop) %>
+      <div class="sm:text-right">
+        <p class="text-label text-f1-text-muted uppercase tracking-widest mb-1">Championship Points</p>
+        <p class="text-metric-xl font-data text-f1-teal"><%= @driver.total_points %></p>
+      </div>
+    </div>
+  </div>
+
+  <%# ── KPI cards ────────────────────────────────────────────────── %>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <div class="bg-f1-bg-surface rounded-card border border-f1-border p-5">
+      <p class="text-label text-f1-text-secondary uppercase tracking-widest mb-2">Races</p>
+      <p class="text-metric-lg font-data text-f1-teal"><%= @results.size %></p>
+    </div>
+    <div class="bg-f1-bg-surface rounded-card border border-f1-border p-5">
+      <p class="text-label text-f1-text-secondary uppercase tracking-widest mb-2">Wins</p>
+      <p class="text-metric-lg font-data text-f1-gold"><%= @results.count { |r| r.final_position == 1 } %></p>
+    </div>
+    <div class="bg-f1-bg-surface rounded-card border border-f1-border p-5">
+      <p class="text-label text-f1-text-secondary uppercase tracking-widest mb-2">Podiums</p>
+      <p class="text-metric-lg font-data text-f1-teal"><%= @results.count { |r| [1, 2, 3].include?(r.final_position) } %></p>
+    </div>
+    <div class="bg-f1-bg-surface rounded-card border border-f1-border p-5">
+      <p class="text-label text-f1-text-secondary uppercase tracking-widest mb-2">DNFs</p>
+      <p class="text-metric-lg font-data text-f1-text-muted"><%= @results.count { |r| !r.finished? } %></p>
+    </div>
+  </div>
+
+  <%# ── Season metrics + teammate ───────────────────────────────── %>
+  <% if @season_metric || @teammate %>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+      <% if @season_metric %>
+        <div class="bg-f1-bg-surface rounded-card border border-f1-border p-5">
+          <p class="text-label text-f1-text-secondary uppercase tracking-widest mb-3">Custom Metrics</p>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <p class="text-label text-f1-text-muted uppercase mb-1">Perf. Index</p>
+              <p class="text-metric-md font-data text-f1-teal"><%= @season_metric.performance_index&.round(1) || "—" %></p>
+            </div>
+            <div>
+              <p class="text-label text-f1-text-muted uppercase mb-1">Consistency</p>
+              <p class="text-metric-md font-data text-f1-teal"><%= @season_metric.consistency_score&.round(1) || "—" %></p>
+            </div>
+            <div>
+              <p class="text-label text-f1-text-muted uppercase mb-1">Race Pace</p>
+              <p class="text-metric-md font-data text-f1-teal"><%= @season_metric.race_pace&.round(1) || "—" %></p>
+            </div>
+            <div>
+              <p class="text-label text-f1-text-muted uppercase mb-1">Recent Form</p>
+              <p class="text-metric-md font-data text-f1-teal"><%= @season_metric.recent_form&.round(1) || "—" %></p>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <% if @teammate %>
+        <% h2h = @driver.head_to_head_vs_teammate %>
+        <div class="bg-f1-bg-surface rounded-card border border-f1-border p-5">
+          <p class="text-label text-f1-text-secondary uppercase tracking-widest mb-3">
+            Head-to-Head vs <%= @teammate.full_name %>
+          </p>
+          <% if h2h %>
+            <div class="flex gap-8 items-center">
+              <div class="text-center">
+                <p class="text-label text-f1-text-muted uppercase mb-1"><%= @driver.last_name %></p>
+                <p class="text-metric-lg font-data text-f1-teal"><%= h2h[:wins] %></p>
+              </div>
+              <div class="text-f1-text-muted text-xl">vs</div>
+              <div class="text-center">
+                <p class="text-label text-f1-text-muted uppercase mb-1"><%= @teammate.last_name %></p>
+                <p class="text-metric-lg font-data text-f1-text-secondary"><%= h2h[:losses] %></p>
+              </div>
+            </div>
+          <% else %>
+            <p class="text-f1-text-muted">No head-to-head data yet.</p>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%# ── Issue #45 — Chart B: Points Evolution line chart ──────────── %>
+  <% if @cumulative_points.any? %>
+    <div class="bg-f1-bg-surface rounded-card border border-f1-border shadow-card p-5 mb-8"
+         data-controller="points-evolution-chart"
+         data-points-evolution-chart-results-value="<%= @cumulative_points.to_json %>"
+         data-points-evolution-chart-teammate-value="<%= @teammate_cumulative_points.to_json %>"
+         data-points-evolution-chart-team-key-value="<%= @driver.team.tailwind_key %>"
+         data-points-evolution-chart-driver-name-value="<%= @driver.last_name %>"
+         data-points-evolution-chart-teammate-name-value="<%= @teammate&.last_name.to_s %>">
+      <div class="flex items-center gap-3 mb-4">
+        <h2 class="text-xl font-semibold text-f1-text-primary">Points Evolution</h2>
+        <div class="flex-1 h-px bg-f1-red opacity-60"></div>
+      </div>
+      <%# Height: 280px desktop, 220px on sm- handled by CSS %>
+      <div class="relative" style="height: 280px;">
+        <canvas data-points-evolution-chart-target="canvas"
+                aria-label="Points evolution chart for <%= @driver.full_name %>, Season <%= @season %>"
+                role="img">
+          Race-by-race points data is available in the Race History table below.
+        </canvas>
+      </div>
+    </div>
+  <% end %>
+
+  <%# ── Race history ─────────────────────────────────────────────── %>
+  <div class="flex items-center gap-3 mb-4">
+    <h2 class="text-xl font-semibold text-f1-text-primary">Race History</h2>
+    <div class="flex-1 h-px bg-f1-red opacity-60"></div>
+  </div>
+
+  <% if @results.any? %>
+    <div class="bg-f1-bg-surface rounded-card border border-f1-border shadow-card overflow-hidden">
+      <table class="w-full">
+        <thead>
+          <tr class="bg-f1-red">
+            <th class="px-4 py-3 text-left text-label text-white uppercase tracking-wider">Race</th>
+            <th class="px-4 py-3 text-right text-label text-white uppercase tracking-wider hidden sm:table-cell">Grid</th>
+            <th class="px-4 py-3 text-right text-label text-white uppercase tracking-wider">Finish</th>
+            <th class="px-4 py-3 text-right text-label text-white uppercase tracking-wider hidden md:table-cell">+/-</th>
+            <th class="px-4 py-3 text-right text-label text-white uppercase tracking-wider">Pts</th>
+            <th class="px-4 py-3 text-left text-label text-white uppercase tracking-wider hidden lg:table-cell">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @results.each do |result| %>
+            <tr class="border-b border-f1-border hover:bg-f1-bg-elevated transition-colors duration-150">
+              <td class="px-4 py-3">
+                <%= link_to result.race.name, race_path(result.race),
+                    class: "text-f1-text-primary hover:text-f1-red transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-f1-teal focus-visible:outline-none" %>
+                <% if result.fastest_lap? %>
+                  <span class="ml-1 text-xs text-f1-teal" title="Fastest Lap">⚡</span>
+                <% end %>
+              </td>
+              <td class="px-4 py-3 text-f1-text-secondary font-data text-right hidden sm:table-cell">
+                <%= result.grid_position || "—" %>
+              </td>
+              <td class="px-4 py-3 font-data font-bold text-right">
+                <% case result.final_position %>
+                <% when 1 %>
+                  <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-f1-gold text-f1-text-inverse text-sm font-bold">1</span>
+                <% when 2 %>
+                  <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-f1-silver text-f1-text-inverse text-sm font-bold">2</span>
+                <% when 3 %>
+                  <%# Bronze: indicateur graphique ≥ 18px bold uniquement (WCAG 3.8:1 AA large) %>
+                  <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-f1-bronze text-f1-text-inverse text-sm font-bold">3</span>
+                <% else %>
+                  <span class="text-f1-text-secondary font-data font-bold"><%= result.final_position || "—" %></span>
+                <% end %>
+              </td>
+              <td class="px-4 py-3 font-data text-right hidden md:table-cell">
+                <% gained = result.positions_gained %>
+                <% if gained %>
+                  <% if gained > 0 %>
+                    <span class="text-f1-teal">+<%= gained %></span>
+                  <% elsif gained < 0 %>
+                    <span class="text-f1-red"><%= gained %></span>
+                  <% else %>
+                    <span class="text-f1-text-muted">0</span>
+                  <% end %>
+                <% else %>
+                  <span class="text-f1-text-muted">—</span>
+                <% end %>
+              </td>
+              <td class="px-4 py-3 font-bold text-f1-teal font-data text-right">
+                <%= result.points > 0 ? result.points : "—" %>
+              </td>
+              <td class="px-4 py-3 text-f1-text-secondary text-sm hidden lg:table-cell">
+                <%= result.status %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="bg-f1-bg-surface rounded-card border border-f1-border p-8 text-center">
+      <p class="text-f1-text-muted">No race results yet.</p>
+    </div>
+  <% end %>
+
+</div>

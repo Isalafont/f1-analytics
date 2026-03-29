@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <title><%= content_for(:title) || "F1 Analytics" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -22,10 +22,69 @@
     <%= javascript_importmap_tags %>
   </head>
 
+  <%# Issue #46 — nav globale + responsive container %>
   <body class="bg-f1-bg-base text-f1-text-primary font-body antialiased"
         data-controller="chart-defaults">
-    <main class="container mx-auto mt-28 px-5 flex">
+
+    <%# ── Global Navigation ─────────────────────────────────────── %>
+    <nav class="bg-f1-bg-surface border-b border-f1-border px-4 py-3 sticky top-0 z-50"
+         aria-label="Main navigation"
+         data-controller="mobile-menu">
+      <div class="max-w-7xl mx-auto flex items-center justify-between">
+
+        <%# Brand %>
+        <%= link_to root_path,
+            class: "font-bold text-f1-text-primary hover:text-f1-red transition-colors focus-visible:ring-2 focus-visible:ring-f1-teal focus-visible:outline-none",
+            style: "font-family: 'Barlow', sans-serif;" do %>
+          F1 Analytics
+          <span class="text-f1-red text-xs font-data ml-1">2026</span>
+        <% end %>
+
+        <%# Desktop nav links %>
+        <ul class="hidden md:flex items-center gap-6" role="list">
+          <li>
+            <%= link_to "Dashboard", root_path,
+                aria: { current: current_page?(root_path) ? "page" : nil },
+                class: "text-f1-text-secondary hover:text-f1-text-primary text-sm transition-colors
+                        aria-[current=page]:text-f1-red aria-[current=page]:font-semibold
+                        focus-visible:ring-2 focus-visible:ring-f1-teal focus-visible:outline-none" %>
+          </li>
+        </ul>
+
+        <%# Burger button — mobile only %>
+        <button class="md:hidden text-f1-text-secondary hover:text-f1-text-primary p-2 rounded
+                       focus-visible:ring-2 focus-visible:ring-f1-teal focus-visible:outline-none"
+                aria-expanded="false"
+                aria-controls="mobile-menu"
+                aria-label="Open navigation menu"
+                data-action="click->mobile-menu#toggle">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+
+      </div>
+
+      <%# Mobile menu dropdown %>
+      <div id="mobile-menu"
+           class="hidden md:hidden border-t border-f1-border mt-3 pt-3"
+           data-mobile-menu-target="menu">
+        <ul class="flex flex-col gap-1 max-w-7xl mx-auto" role="list">
+          <li>
+            <%= link_to "Dashboard", root_path,
+                class: "block px-3 py-2 rounded text-f1-text-secondary hover:text-f1-text-primary
+                        hover:bg-f1-bg-elevated text-sm transition-colors
+                        focus-visible:ring-2 focus-visible:ring-f1-teal focus-visible:outline-none" %>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <%# ── Main content ─────────────────────────────────────────── %>
+    <%# Issue #46: px-4 sm:px-6 responsive padding, removed mt-28 (nav is sticky now) %>
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8" id="main-content">
       <%= yield %>
     </main>
+
   </body>
 </html>
