@@ -90,6 +90,11 @@ Exemples:
 - `[FIX] Race import job timeout`
 - `[REFACTOR] Extract analytics service`
 
+Si ta PR dépend d'une autre non encore mergée, **préfixer le titre** avec `[after #XX]` :
+- `[after #73] [FEAT] Championship chart fix`
+
+Owly lit ce préfixe → connaît l'ordre de merge sans qu'Isa intervienne.
+
 ### PR Template
 
 ```markdown
@@ -105,9 +110,23 @@ Exemples:
 - [ ] Rubocop passing
 - [ ] Migrations réversibles + indexes + foreign keys
 - [ ] README/docs mis à jour si nécessaire
+- [ ] Pas de commentaires laissés dans le code
+- [ ] Description de PR à jour (pas juste "feat: ...")
 
 ## 📸 Screenshots
 <!-- Si changement UI -->
+```
+
+### Checklist Owly avant merge
+
+Owly vérifie chaque case avant de merger. Si une case n'est pas cochée → fix demandé à Bender d'abord.
+
+```
+- [ ] Pas de commentaires laissés dans le code
+- [ ] RuboCop green
+- [ ] Dépendances respectées — PRs liées mergées dans le bon ordre ([after #XX])
+- [ ] CI vert (rspec + rubocop)
+- [ ] Description de PR lisible par Isa
 ```
 
 ### Review Rules
