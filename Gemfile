@@ -2,14 +2,17 @@
 
 source "https://rubygems.org"
 
-# Pin: Rails 8.1 requires Ruby 3.4+, we're on Ruby 3.3
-gem "rails", "~> 7.2.3"
+ruby "3.4.7"
+
+gem "rails", "~> 8.0"
 
 gem "bootsnap", require: false
 gem "importmap-rails"
 gem "propshaft"
 gem "puma", ">= 5.0"
-gem "sqlite3", ">= 1.4"
+gem "solid_cache"
+gem "solid_queue"
+gem "sqlite3", ">= 2.0"
 gem "stimulus-rails"
 gem "tailwindcss-rails"
 gem "turbo-rails"
@@ -24,7 +27,7 @@ group :development, :test do
   gem "debug", platforms: %i[mri windows], require: "debug/prelude"
   gem "factory_bot_rails"
   gem "faker"
-  gem "rspec-rails", "~> 6.1"
+  gem "rspec-rails", "~> 8.0"
   gem "rubocop", require: false
   gem "rubocop-performance", require: false
   gem "rubocop-rails", require: false

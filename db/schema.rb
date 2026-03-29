@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # This file is auto-generated from the current state of the database. Instead
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
@@ -43,7 +45,7 @@ ActiveRecord::Schema[7.2].define(version: 8) do
     t.datetime "updated_at", null: false
     t.index ["active"], name: "index_drivers_on_active"
     t.index ["code"], name: "index_drivers_on_code"
-    t.index ["last_name", "season"], name: "index_drivers_on_last_name_and_season"
+    t.index %w[last_name season], name: "index_drivers_on_last_name_and_season"
     t.index ["team_id"], name: "index_drivers_on_team_id"
   end
 
@@ -61,8 +63,8 @@ ActiveRecord::Schema[7.2].define(version: 8) do
     t.decimal "avg_finish_position", precision: 5, scale: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["driver_id", "race_id"], name: "index_metrics_on_driver_id_and_race_id", unique: true
-    t.index ["driver_id", "season"], name: "index_metrics_on_driver_id_and_season"
+    t.index %w[driver_id race_id], name: "index_metrics_on_driver_id_and_race_id", unique: true
+    t.index %w[driver_id season], name: "index_metrics_on_driver_id_and_season"
     t.index ["driver_id"], name: "index_metrics_on_driver_id"
     t.index ["performance_index"], name: "index_metrics_on_performance_index"
     t.index ["race_id"], name: "index_metrics_on_race_id"
@@ -80,7 +82,7 @@ ActiveRecord::Schema[7.2].define(version: 8) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["date"], name: "index_races_on_date"
-    t.index ["season", "round"], name: "index_races_on_season_and_round", unique: true
+    t.index %w[season round], name: "index_races_on_season_and_round", unique: true
     t.index ["status"], name: "index_races_on_status"
   end
 
@@ -100,7 +102,7 @@ ActiveRecord::Schema[7.2].define(version: 8) do
     t.index ["driver_id"], name: "index_results_on_driver_id"
     t.index ["final_position"], name: "index_results_on_final_position"
     t.index ["points"], name: "index_results_on_points"
-    t.index ["race_id", "driver_id"], name: "index_results_on_race_id_and_driver_id", unique: true
+    t.index %w[race_id driver_id], name: "index_results_on_race_id_and_driver_id", unique: true
     t.index ["race_id"], name: "index_results_on_race_id"
   end
 
@@ -132,7 +134,7 @@ ActiveRecord::Schema[7.2].define(version: 8) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["active"], name: "index_teams_on_active"
-    t.index ["name", "season"], name: "index_teams_on_name_and_season", unique: true
+    t.index %w[name season], name: "index_teams_on_name_and_season", unique: true
   end
 
   create_table "weather_conditions", force: :cascade do |t|
@@ -149,7 +151,7 @@ ActiveRecord::Schema[7.2].define(version: 8) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["condition"], name: "index_weather_conditions_on_condition"
-    t.index ["race_id", "session_type"], name: "index_weather_conditions_on_race_id_and_session_type", unique: true
+    t.index %w[race_id session_type], name: "index_weather_conditions_on_race_id_and_session_type", unique: true
     t.index ["race_id"], name: "index_weather_conditions_on_race_id"
   end
 

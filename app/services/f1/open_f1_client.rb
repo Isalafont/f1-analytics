@@ -24,7 +24,11 @@ module F1
     end
 
     def session_key_for_round(year:, round:)
-      return F1::Constants::KNOWN_SESSIONS_2025[round][:session_key] if known_session?(year, round)
+      known = known_session?(year, round)
+      if known
+        return nil if known[:status] == "cancelled" # Bahrain/Saudi 2026 annulés
+        return known[:session_key] if known[:session_key]
+      end
 
       sessions(year: year, session_name: "Race")
         .sort_by { |s| s["date_start"] }
@@ -83,7 +87,10 @@ module F1
     private
 
     def known_session?(year, round)
-      year == 2025 && F1::Constants::KNOWN_SESSIONS_2025[round]
+      case year
+      when 2025 then F1::Constants::KNOWN_SESSIONS_2025[round]
+      when 2026 then F1::Constants::KNOWN_SESSIONS_2026[round]
+      end
     end
 
     def extract_final_positions(session_key)
@@ -96,10 +103,22 @@ module F1
       driver = driver_index[driver_number] || {}
       final_pos = position_data["position"]
 
-      { driver_number: driver_number, driver_code: driver["name_acronym"],
-        driver_first_name: driver["first_name"], driver_last_name: driver["last_name"],
-        team_name: driver["team_name"], final_position: final_pos,
-        points: F1::Constants::POINTS_MAP[final_pos] || 0, session_key: session_key }
+      {
+        driver_number: driver_number,
+        driver_code: driver["name_acronym"],
+        driver_first_name: driver["first_name"],
+        driver_last_name: driver["last_name"],
+        driver_nationality: driver["country_code"],
+        team_name: driver["team_name"],
+        final_position: final_pos,
+        points: F1::Constants::POINTS_MAP[final_pos] || 0,
+        status: "Finished",
+        grid_position: nil, # non disponible via /v1/position — requiert /v1/laps ou qualifying
+        laps_completed: nil, # non disponible via /v1/position
+        fastest_lap_time: nil, # à enrichir via FetchLapMetricsJob si besoin
+        fastest_lap_rank: nil,
+        session_key: session_key
+      }
     end
 
     def final_position(session_key:, driver_number:)

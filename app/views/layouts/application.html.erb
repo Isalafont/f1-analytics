@@ -9,6 +9,10 @@
 
     <%= yield :head %>
 
+    <%# Google Fonts — Barlow (headings F1-vibes) + Inter (body) + JetBrains Mono (data/metrics) %>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@600;700;800&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" href="/icon.png" type="image/png">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
@@ -18,7 +22,8 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
+  <body class="bg-f1-bg-base text-f1-text-primary font-body antialiased"
+        data-controller="chart-defaults">
     <main class="container mx-auto mt-28 px-5 flex">
       <%= yield %>
     </main>
