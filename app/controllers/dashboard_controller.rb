@@ -16,12 +16,7 @@ class DashboardController < ApplicationController
     @metrics = @driver.metrics.race_metrics.joins(:race).order("races.round ASC")
     @season_metric = @driver.metrics.season_aggregates.first
     @teammate = @driver.teammate
-
-    # Issue #45 — Chart B: cumulative points evolution data
-    @cumulative_points = build_cumulative_points(@results)
-    @teammate_cumulative_points = @teammate ? build_cumulative_points(
-      @teammate.results.joins(:race).order("races.round ASC")
-    ) : []
+    load_driver_chart_data
   end
 
   def team
@@ -52,7 +47,7 @@ class DashboardController < ApplicationController
         last_name: d.last_name,
         team_key: d.team.tailwind_key,
         team_name: d.team.name,
-        total_points: d.total_points,
+        total_points: d.total_points
       }
     end
   end
@@ -88,6 +83,18 @@ class DashboardController < ApplicationController
         .order(Arel.sql("(SELECT SUM(points) FROM results " \
                         "INNER JOIN drivers ON results.driver_id = drivers.id " \
                         "WHERE drivers.team_id = teams.id) DESC"))
+  end
+
+  # Issue #45 — Chart B data for driver page
+  def load_driver_chart_data
+    @cumulative_points = build_cumulative_points(@results)
+    @teammate_cumulative_points = if @teammate
+                                    build_cumulative_points(
+                                      @teammate.results.joins(:race).order("races.round ASC")
+                                    )
+                                  else
+                                    []
+                                  end
   end
 
   # Issue #45 — Builds cumulative points array for Chart B (Points Evolution)
