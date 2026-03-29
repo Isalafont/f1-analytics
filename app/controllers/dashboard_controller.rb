@@ -16,7 +16,12 @@ class DashboardController < ApplicationController
     @metrics = @driver.metrics.race_metrics.joins(:race).order("races.round ASC")
     @season_metric = @driver.metrics.season_aggregates.first
     @teammate = @driver.teammate
-    load_driver_chart_data
+
+    # Issue #45 — Chart B: cumulative points evolution data
+    @cumulative_points = build_cumulative_points(@results)
+    @teammate_cumulative_points = @teammate ? build_cumulative_points(
+      @teammate.results.joins(:race).order("races.round ASC")
+    ) : []
   end
 
   def team
@@ -40,13 +45,14 @@ class DashboardController < ApplicationController
   def load_standings
     @drivers = season_drivers
     @teams = season_teams
+    # Issue #45 — Chart A: standings data for JS Stimulus controller
     @drivers_chart_data = @drivers.map do |d|
       {
         id: d.id,
         last_name: d.last_name,
         team_key: d.team.tailwind_key,
         team_name: d.team.name,
-        total_points: d.total_points
+        total_points: d.total_points,
       }
     end
   end
@@ -70,6 +76,8 @@ class DashboardController < ApplicationController
   end
 
   def season_drivers
+    # .load forces eager loading — prevents .size from issuing a GROUP BY COUNT
+    # that returns a Hash instead of Integer (by_points scope uses group(:id))
     Driver.for_season(@season).includes(:team, :results).by_points.limit(20).load
   end
 
@@ -82,17 +90,8 @@ class DashboardController < ApplicationController
                         "WHERE drivers.team_id = teams.id) DESC"))
   end
 
-  def load_driver_chart_data
-    @cumulative_points = build_cumulative_points(@results)
-    @teammate_cumulative_points = if @teammate
-                                    build_cumulative_points(
-                                      @teammate.results.joins(:race).order("races.round ASC")
-                                    )
-                                  else
-                                    []
-                                  end
-  end
-
+  # Issue #45 — Builds cumulative points array for Chart B (Points Evolution)
+  # Returns [{race_name: "Australian GP", points: 25, cumulative: 25}, ...]
   def build_cumulative_points(results)
     cumulative = 0
     results.select { |r| r.race.status == "completed" }.map do |result|
