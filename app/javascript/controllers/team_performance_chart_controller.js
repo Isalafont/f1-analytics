@@ -2,8 +2,10 @@
 // Grouped bar chart: per-race points contribution per driver in a team
 
 import { Controller } from "@hotwired/stimulus"
-import Chart from "chart.js/auto"
+import { Chart, registerables } from "chart.js"
 import { getTeamColor, formatRaceName } from "./chart_helpers"
+
+Chart.register(...registerables)
 
 export default class extends Controller {
   static targets = ["canvas"]

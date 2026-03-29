@@ -4,7 +4,9 @@
 // Doit être chargé avant tout chart — le body est le nœud racine idéal.
 
 import { Controller } from "@hotwired/stimulus"
-import Chart from "chart.js/auto"
+import { Chart, registerables } from "chart.js"
+
+Chart.register(...registerables)
 
 export default class extends Controller {
   connect() {
