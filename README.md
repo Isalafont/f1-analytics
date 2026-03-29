@@ -1,5 +1,7 @@
 # F1 Analytics 🏎️
 
+🌐 **[f1-analytics.fly.dev](https://f1-analytics.fly.dev)**
+
 > Application Rails de suivi de la saison F1 2026 avec métriques custom.  
 > Entièrement conçue et développée par une équipe d'agents IA. Supervisée par une humaine.
 
