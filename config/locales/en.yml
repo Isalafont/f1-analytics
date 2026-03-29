@@ -29,3 +29,8 @@
 
 en:
   hello: "Hello world"
+  dashboard:
+    cancelled_races:
+      title: "Rounds 4 & 5 cancelled by the FIA"
+      body: "The Bahrain Grand Prix (Round 4, Sakhir) and the Saudi Arabian Grand Prix (Round 5, Jeddah) were cancelled by the FIA on 14 March 2026 due to the ongoing armed conflict in the Middle East region. With the safety of all personnel on site unable to be guaranteed, no replacement dates were found. The championship resumes with the Monaco Grand Prix (Round 6) on 7 June 2026."
+      footnote: "Rounds 4 & 5 (Bahrain, Saudi Arabia) were cancelled by the FIA on 14 March 2026 due to the ongoing armed conflict in the Middle East region."
