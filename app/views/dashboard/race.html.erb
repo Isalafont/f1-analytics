@@ -1,4 +1,3 @@
-<%# app/views/dashboard/race.html.erb — Issue #44 dark theme — Bender 🤖 %>
 <% content_for :title, "#{@race.name} — F1 Analytics" %>
 
 <div class="w-full">
@@ -9,7 +8,6 @@
 
   <%# ── Race header ──────────────────────────────────────────────── %>
   <div class="bg-f1-bg-surface rounded-card border border-f1-border shadow-card p-6 mb-6">
-    <%# Issue #46 — responsive race header %>
     <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
       <div>
         <p class="text-label text-f1-text-muted uppercase tracking-widest mb-1">
@@ -58,7 +56,6 @@
         <h2 class="text-xl font-semibold text-f1-text-primary">Podium</h2>
         <div class="flex-1 h-px bg-f1-red opacity-60"></div>
       </div>
-      <%# Issue #46 — grid-cols-3 compact on mobile, full cards on desktop %>
       <div class="grid grid-cols-3 md:grid-cols-3 gap-2 md:gap-4 mb-8">
         <% @podium.each do |result| %>
           <%# Mobile: compact card (last_name only, small points) %>
