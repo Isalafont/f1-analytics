@@ -1,0 +1,29 @@
+# fly.toml app configuration file generated for f1-analytics
+app = "f1-analytics"
+primary_region = "cdg"
+
+[build]
+
+[deploy]
+  release_command = "bin/rails db:migrate"
+
+[env]
+  PORT = "8080"
+  RAILS_ENV = "production"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+[[vm]]
+  memory = "1gb"
+  cpu_kind = "shared"
+  cpus = 1
+
+[mounts]
+  source = "f1_analytics_data"
+  destination = "/rails/storage"
