@@ -183,6 +183,27 @@ Les bots n'ont pas de compte GitHub. Voici comment on contribue:
 3. **Isa review** et merge depuis sa machine
 4. **Bot documente** les changements
 
+### Signature des commits agents
+
+Chaque commit produit par les bots inclut un footer standardisé :
+
+```
+feat(dashboard): add driver performance index chart
+
+Co-authored-by: Bender 🤖 <bender@f1-analytics.local>
+Committed-by: Owly 🦉 <owly@f1-analytics.local>
+Model: claude-sonnet-4-6 (Anthropic)
+```
+
+| Champ | Rôle |
+|-------|------|
+| `Co-authored-by` | Agent qui a écrit le code (Bender 🤖, Iris 🌸, etc.) |
+| `Committed-by` | Agent qui a créé et pushé le commit (Owly 🦉) |
+| `Model` | Modèle LLM utilisé — traçabilité technique |
+
+> GitHub reconnaît nativement `Co-authored-by` et affiche les avatars dans l'historique.
+> Pour les commits solo Owly (orchestration, infra), seul `Committed-by` + `Model` sont requis.
+
 ---
 
 ## 🛤️ Rails Code Conventions
@@ -313,5 +334,5 @@ bundle exec rails db:seed
 
 ---
 
-_Version 1.3 - 2026-03-01_  
+_Version 1.4 - 2026-03-29_  
 _Maintenu par: Data ✨ | Orchestré par: Owly 🦉_
