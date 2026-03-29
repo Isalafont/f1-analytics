@@ -40,7 +40,6 @@ class DashboardController < ApplicationController
   def load_standings
     @drivers = season_drivers
     @teams = season_teams
-    # Issue #45 — Chart A: standings data for JS Stimulus controller
     @drivers_chart_data = @drivers.map do |d|
       {
         id: d.id,
@@ -71,8 +70,6 @@ class DashboardController < ApplicationController
   end
 
   def season_drivers
-    # .load forces eager loading — prevents .size from issuing a GROUP BY COUNT
-    # that returns a Hash instead of Integer (by_points scope uses group(:id))
     Driver.for_season(@season).includes(:team, :results).by_points.limit(20).load
   end
 
@@ -85,7 +82,6 @@ class DashboardController < ApplicationController
                         "WHERE drivers.team_id = teams.id) DESC"))
   end
 
-  # Issue #45 — Chart B data for driver page
   def load_driver_chart_data
     @cumulative_points = build_cumulative_points(@results)
     @teammate_cumulative_points = if @teammate
@@ -97,8 +93,6 @@ class DashboardController < ApplicationController
                                   end
   end
 
-  # Issue #45 — Builds cumulative points array for Chart B (Points Evolution)
-  # Returns [{race_name: "Australian GP", points: 25, cumulative: 25}, ...]
   def build_cumulative_points(results)
     cumulative = 0
     results.select { |r| r.race.status == "completed" }.map do |result|
