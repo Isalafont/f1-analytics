@@ -1,0 +1,166 @@
+<% content_for :title, "Dashboard — F1 Analytics" %>
+
+<div class="w-full">
+
+  <%# ── Hero header ──────────────────────────────────────────────── %>
+  <div class="mb-10">
+    <div class="flex items-center gap-3 mb-2">
+      <h1 class="text-3xl font-bold text-f1-text-primary" style="font-family: 'Barlow', sans-serif;">
+        F1 Analytics
+      </h1>
+      <div class="flex-1 h-px bg-f1-red opacity-60"></div>
+    </div>
+    <p class="text-f1-text-secondary">
+      Season <%= Date.current.year %> — Metrics & Standings
+    </p>
+  </div>
+
+  <%# ── Top KPI row ──────────────────────────────────────────────── %>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+    <div class="bg-f1-bg-surface rounded-card border border-f1-border p-5">
+      <p class="text-label text-f1-text-secondary uppercase tracking-widest mb-2">Rounds</p>
+      <p class="text-metric-lg font-data text-f1-teal"><%= @total_races %></p>
+    </div>
+    <div class="bg-f1-bg-surface rounded-card border border-f1-border p-5">
+      <p class="text-label text-f1-text-secondary uppercase tracking-widest mb-2">Completed</p>
+      <p class="text-metric-lg font-data text-f1-teal"><%= @completed_races %></p>
+    </div>
+    <div class="bg-f1-bg-surface rounded-card border border-f1-border p-5">
+      <p class="text-label text-f1-text-secondary uppercase tracking-widest mb-2">Drivers</p>
+      <p class="text-metric-lg font-data text-f1-teal"><%= @total_drivers %></p>
+    </div>
+    <div class="bg-f1-bg-surface rounded-card border border-f1-border p-5">
+      <p class="text-label text-f1-text-secondary uppercase tracking-widest mb-2">Teams</p>
+      <p class="text-metric-lg font-data text-f1-teal"><%= @total_teams %></p>
+    </div>
+  </div>
+
+  <%# ── Two-column layout ────────────────────────────────────────── %>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+    <%# ── Driver Standings ──────────────────────────────────────── %>
+    <div>
+      <div class="flex items-center gap-3 mb-4">
+        <h2 class="text-xl font-semibold text-f1-text-primary">Driver Standings</h2>
+        <div class="flex-1 h-px bg-f1-red opacity-60"></div>
+        <%= link_to "All →", drivers_path,
+            class: "text-f1-text-muted hover:text-f1-red text-sm transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-f1-teal focus-visible:outline-none flex-shrink-0" %>
+      </div>
+
+      <div class="bg-f1-bg-surface rounded-card border border-f1-border shadow-card overflow-hidden">
+        <table class="w-full">
+          <thead>
+            <tr class="bg-f1-red">
+              <th class="px-4 py-3 text-left text-label text-white uppercase tracking-wider">Pos</th>
+              <th class="px-4 py-3 text-left text-label text-white uppercase tracking-wider">Driver</th>
+              <th class="px-4 py-3 text-left text-label text-white uppercase tracking-wider hidden sm:table-cell">Team</th>
+              <th class="px-4 py-3 text-right text-label text-white uppercase tracking-wider">Pts</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @top_drivers.each_with_index do |driver, index| %>
+              <% pos = index + 1 %>
+              <tr class="border-b border-f1-border hover:bg-f1-bg-elevated transition-colors duration-150">
+                <td class="px-4 py-3 font-data font-bold">
+                  <% case pos %>
+                  <% when 1 %>
+                    <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-f1-gold text-f1-text-inverse text-sm font-bold">1</span>
+                  <% when 2 %>
+                    <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-f1-silver text-f1-text-inverse text-sm font-bold">2</span>
+                  <% when 3 %>
+                    <%# Bronze: indicateur graphique ≥ 18px bold uniquement (WCAG 3.8:1 AA large) %>
+                    <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-f1-bronze text-f1-text-inverse text-sm font-bold">3</span>
+                  <% else %>
+                    <span class="text-f1-text-secondary font-data font-bold"><%= pos %></span>
+                  <% end %>
+                </td>
+                <td class="px-4 py-3">
+                  <%= link_to driver.full_name, driver_path(driver),
+                      class: "text-f1-text-primary hover:text-f1-red transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-f1-teal focus-visible:outline-none" %>
+                </td>
+                <td class="px-4 py-3 hidden sm:table-cell">
+                  <span class="inline-block px-2 py-0.5 rounded text-xs font-medium text-f1-text-inverse"
+                        style="background-color: var(--f1-team-<%= driver.team.tailwind_key %>)">
+                    <%= driver.team.name %>
+                  </span>
+                </td>
+                <td class="px-4 py-3 font-bold font-data text-right <%= pos == 1 ? 'text-f1-gold' : 'text-f1-teal' %>">
+                  <%= driver.total_points %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <%# ── Recent Races ─────────────────────────────────────────── %>
+    <div>
+      <div class="flex items-center gap-3 mb-4">
+        <h2 class="text-xl font-semibold text-f1-text-primary">Recent Races</h2>
+        <div class="flex-1 h-px bg-f1-red opacity-60"></div>
+        <%= link_to "All →", races_path,
+            class: "text-f1-text-muted hover:text-f1-red text-sm transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-f1-teal focus-visible:outline-none flex-shrink-0" %>
+      </div>
+
+      <div class="space-y-3">
+        <% @recent_races.each do |race| %>
+          <div class="bg-f1-bg-surface rounded-card border border-f1-border shadow-card hover:shadow-card-hover hover:border-f1-border-accent transition-all duration-200 p-4">
+            <div class="flex items-start justify-between gap-4">
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-f1-text-muted font-data text-xs">R<%= race.round %></span>
+                  <%= link_to race.name, race_path(race),
+                      class: "text-f1-text-primary hover:text-f1-red font-medium transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-f1-teal focus-visible:outline-none truncate" %>
+                </div>
+                <p class="text-f1-text-secondary text-sm truncate"><%= race.circuit %></p>
+                <% if race.winner %>
+                  <p class="text-f1-text-muted text-xs mt-1">
+                    🏆 <span class="text-f1-text-secondary"><%= race.winner.full_name %></span>
+                  </p>
+                <% end %>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <p class="font-data text-f1-text-muted text-xs"><%= race.date.strftime("%d %b") %></p>
+                <span class="inline-block mt-1 px-2 py-0.5 rounded text-xs font-medium bg-f1-teal text-f1-text-inverse">Done</span>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <% if @recent_races.empty? %>
+          <div class="bg-f1-bg-surface rounded-card border border-f1-border p-8 text-center">
+            <p class="text-f1-text-muted">No completed races yet.</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+  </div>
+
+  <%# ── Next Race ────────────────────────────────────────────────── %>
+  <% if @next_race %>
+    <div class="mt-10">
+      <div class="flex items-center gap-3 mb-4">
+        <h2 class="text-xl font-semibold text-f1-text-primary">Next Race</h2>
+        <div class="flex-1 h-px bg-f1-red opacity-60"></div>
+      </div>
+      <div class="bg-f1-bg-surface rounded-card border border-f1-border-accent shadow-card shadow-red-glow p-6">
+        <div class="flex items-center justify-between gap-4 flex-wrap">
+          <div>
+            <p class="text-label text-f1-text-muted uppercase tracking-widest mb-1">Round <%= @next_race.round %></p>
+            <h3 class="text-2xl font-bold text-f1-text-primary" style="font-family: 'Barlow', sans-serif;">
+              <%= @next_race.name %>
+            </h3>
+            <p class="text-f1-text-secondary mt-1"><%= @next_race.circuit %></p>
+          </div>
+          <div class="text-right">
+            <p class="text-f1-text-muted text-sm">Race date</p>
+            <p class="font-data text-f1-teal text-lg font-bold"><%= @next_race.date.strftime("%d %b %Y") %></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+</div>
