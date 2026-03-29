@@ -25,7 +25,7 @@ class Team < ApplicationRecord
     "Aston Martin" => "astonmartin",
     "Alpine" => "alpine",
     "Haas" => "haas",
-    "RB" => "rb",
+    "Racing Bulls" => "rb",
     "Kick Sauber" => "sauber",
     "Williams" => "williams",
     "Audi" => "audi",

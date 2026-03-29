@@ -52,8 +52,10 @@ class DashboardController < ApplicationController
   end
 
   def load_races
-    @recent_races = Race.for_season(@season).completed.limit(5)
-    @upcoming_races = Race.for_season(@season).upcoming.limit(3)
+    @recent_races    = Race.for_season(@season).completed.limit(5)
+    @upcoming_races  = Race.for_season(@season).upcoming.limit(3)
+    @cancelled_races = Race.for_season(@season).where(status: "cancelled").order(:round)
+    @show_cancelled_banner = Race.for_season(@season).where(status: "completed").maximum(:round).to_i < 6
   end
 
   def load_metric_leaderboards

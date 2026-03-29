@@ -33,6 +33,29 @@
     </div>
   </div>
 
+  <%# ── Cancelled races notice ────────────────────────────────────── %>
+  <% if @cancelled_races&.any? %>
+    <% if @show_cancelled_banner %>
+      <div class="rounded-card border border-f1-gold/40 bg-f1-gold/5 px-5 py-4 mb-8"
+           role="alert"
+           aria-live="polite">
+        <div class="flex gap-3 items-start mb-2">
+          <span class="text-f1-gold text-base flex-shrink-0 mt-0.5" aria-hidden="true">⚠️</span>
+          <p class="text-f1-gold font-semibold text-sm">
+            <%= t("dashboard.cancelled_races.title") %>
+          </p>
+        </div>
+        <p class="text-f1-text-secondary text-sm leading-relaxed pl-7">
+          <%= t("dashboard.cancelled_races.body") %>
+        </p>
+      </div>
+    <% else %>
+      <p class="text-f1-text-muted text-xs mb-8">
+        † <%= t("dashboard.cancelled_races.footnote") %>
+      </p>
+    <% end %>
+  <% end %>
+
   <%# ── Upcoming races ───────────────────────────────────────────── %>
   <% if @upcoming_races.any? %>
     <div class="flex items-center gap-3 mb-4">
