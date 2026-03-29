@@ -43,6 +43,7 @@
 # Agent coordination files (internal, not part of the project)
 LESSONS.md
 TASKS.md
+FLY_COMMANDS.md
 bender-*.md
 draft-*.md
 research-*.md
