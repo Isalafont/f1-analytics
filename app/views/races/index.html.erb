@@ -1,0 +1,90 @@
+<% content_for :title, "Races — F1 Analytics" %>
+
+<div class="w-full">
+
+  <%# ── Section header ──────────────────────────────────────────── %>
+  <div class="flex items-center gap-3 mb-8">
+    <h1 class="text-2xl font-bold text-f1-text-primary" style="font-family: 'Barlow', sans-serif;">
+      🏁 Races
+      <span class="text-f1-text-muted text-base font-normal ml-2">Season <%= @races.first&.season || Date.current.year %></span>
+    </h1>
+    <div class="flex-1 h-px bg-f1-red opacity-60"></div>
+  </div>
+
+  <%# ── Metric cards ─────────────────────────────────────────────── %>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <div class="bg-f1-bg-surface rounded-card border border-f1-border p-5">
+      <p class="text-label text-f1-text-secondary uppercase tracking-widest mb-2">Total Rounds</p>
+      <p class="text-metric-lg font-data text-f1-teal"><%= @races.size %></p>
+    </div>
+    <div class="bg-f1-bg-surface rounded-card border border-f1-border p-5">
+      <p class="text-label text-f1-text-secondary uppercase tracking-widest mb-2">Completed</p>
+      <p class="text-metric-lg font-data text-f1-teal"><%= @races.count(&:status_completed?) %></p>
+    </div>
+    <div class="bg-f1-bg-surface rounded-card border border-f1-border p-5">
+      <p class="text-label text-f1-text-secondary uppercase tracking-widest mb-2">Upcoming</p>
+      <p class="text-metric-lg font-data text-f1-teal"><%= @races.count(&:status_scheduled?) %></p>
+    </div>
+    <div class="bg-f1-bg-surface rounded-card border border-f1-border p-5">
+      <p class="text-label text-f1-text-secondary uppercase tracking-widest mb-2">Cancelled</p>
+      <p class="text-metric-lg font-data text-f1-text-muted"><%= @races.count(&:status_cancelled?) %></p>
+    </div>
+  </div>
+
+  <%# ── Races table ──────────────────────────────────────────────── %>
+  <div class="bg-f1-bg-surface rounded-card border border-f1-border shadow-card overflow-hidden">
+    <table class="w-full">
+      <thead>
+        <tr class="bg-f1-red">
+          <th class="px-4 py-3 text-left text-label text-white uppercase tracking-wider">Rd</th>
+          <th class="px-4 py-3 text-left text-label text-white uppercase tracking-wider">Race</th>
+          <th class="px-4 py-3 text-left text-label text-white uppercase tracking-wider hidden md:table-cell">Circuit</th>
+          <th class="px-4 py-3 text-left text-label text-white uppercase tracking-wider hidden sm:table-cell">Date</th>
+          <th class="px-4 py-3 text-left text-label text-white uppercase tracking-wider">Status</th>
+          <th class="px-4 py-3 text-left text-label text-white uppercase tracking-wider hidden md:table-cell">Winner</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @races.each do |race| %>
+          <tr class="border-b border-f1-border hover:bg-f1-bg-elevated transition-colors duration-150
+                     <%= 'opacity-40' if race.status_cancelled? %>">
+            <td class="px-4 py-3 font-data font-bold text-f1-text-muted"><%= race.round %></td>
+            <td class="px-4 py-3">
+              <% if race.status_cancelled? %>
+                <span class="text-f1-text-muted line-through"><%= race.name %></span>
+                <span class="ml-2 text-xs text-f1-text-muted">cancelled</span>
+              <% else %>
+                <%= link_to race.name, race_path(race),
+                    class: "text-f1-text-primary hover:text-f1-red transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-f1-teal focus-visible:outline-none" %>
+              <% end %>
+            </td>
+            <td class="px-4 py-3 text-f1-text-secondary hidden md:table-cell"><%= race.circuit %></td>
+            <td class="px-4 py-3 text-f1-text-secondary font-data text-sm hidden sm:table-cell">
+              <%= race.date.strftime("%d %b %Y") %>
+            </td>
+            <td class="px-4 py-3">
+              <% case race.status %>
+              <% when "completed" %>
+                <span class="inline-block px-2 py-0.5 rounded text-xs font-medium bg-f1-teal text-f1-text-inverse">Done</span>
+              <% when "in_progress" %>
+                <span class="inline-block px-2 py-0.5 rounded text-xs font-medium bg-f1-red text-white animate-pulse">Live</span>
+              <% when "scheduled" %>
+                <span class="inline-block px-2 py-0.5 rounded text-xs font-medium border border-f1-border text-f1-text-muted">Scheduled</span>
+              <% when "cancelled" %>
+                <span class="inline-block px-2 py-0.5 rounded text-xs font-medium border border-f1-border-subtle text-f1-text-muted">Cancelled</span>
+              <% end %>
+            </td>
+            <td class="px-4 py-3 hidden md:table-cell">
+              <% if race.status_completed? && race.winner %>
+                <span class="text-f1-text-primary text-sm"><%= race.winner.full_name %></span>
+              <% else %>
+                <span class="text-f1-text-muted">—</span>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+</div>

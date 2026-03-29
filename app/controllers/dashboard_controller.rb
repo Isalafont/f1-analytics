@@ -16,6 +16,7 @@ class DashboardController < ApplicationController
     @metrics = @driver.metrics.race_metrics.joins(:race).order("races.round ASC")
     @season_metric = @driver.metrics.season_aggregates.first
     @teammate = @driver.teammate
+    load_driver_chart_data
   end
 
   def team
@@ -39,6 +40,15 @@ class DashboardController < ApplicationController
   def load_standings
     @drivers = season_drivers
     @teams = season_teams
+    @drivers_chart_data = @drivers.map do |d|
+      {
+        id: d.id,
+        last_name: d.last_name,
+        team_key: d.team.tailwind_key,
+        team_name: d.team.name,
+        total_points: d.total_points
+      }
+    end
   end
 
   def load_races
@@ -60,7 +70,7 @@ class DashboardController < ApplicationController
   end
 
   def season_drivers
-    Driver.for_season(@season).includes(:team, :results).by_points.limit(20)
+    Driver.for_season(@season).includes(:team, :results).by_points.limit(20).load
   end
 
   def season_teams
@@ -70,6 +80,25 @@ class DashboardController < ApplicationController
         .order(Arel.sql("(SELECT SUM(points) FROM results " \
                         "INNER JOIN drivers ON results.driver_id = drivers.id " \
                         "WHERE drivers.team_id = teams.id) DESC"))
+  end
+
+  def load_driver_chart_data
+    @cumulative_points = build_cumulative_points(@results)
+    @teammate_cumulative_points = if @teammate
+                                    build_cumulative_points(
+                                      @teammate.results.joins(:race).order("races.round ASC")
+                                    )
+                                  else
+                                    []
+                                  end
+  end
+
+  def build_cumulative_points(results)
+    cumulative = 0
+    results.select { |r| r.race.status == "completed" }.map do |result|
+      cumulative += result.points.to_i
+      { race_name: result.race.name, points: result.points.to_i, cumulative: cumulative }
+    end
   end
 
   def season_metric_drivers(metric_column)

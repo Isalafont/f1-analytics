@@ -1,0 +1,182 @@
+<% content_for :title, "#{@race.name} — F1 Analytics" %>
+
+<div class="w-full">
+
+  <%# ── Back link ────────────────────────────────────────────────── %>
+  <%= link_to "← All Races", races_path,
+      class: "text-f1-text-muted hover:text-f1-text-secondary text-sm transition-colors duration-150 mb-6 inline-block focus-visible:ring-2 focus-visible:ring-f1-teal focus-visible:outline-none" %>
+
+  <%# ── Race header ──────────────────────────────────────────────── %>
+  <div class="bg-f1-bg-surface rounded-card border border-f1-border shadow-card p-6 mb-6">
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <p class="text-label text-f1-text-muted uppercase tracking-widest mb-1">
+          Round <%= @race.round %> · <%= @race.season %>
+        </p>
+        <h1 class="text-3xl font-bold text-f1-text-primary mb-1" style="font-family: 'Barlow', sans-serif;">
+          <%= @race.name %>
+        </h1>
+        <p class="text-f1-text-secondary"><%= @race.circuit %></p>
+      </div>
+      <div class="text-right flex-shrink-0">
+        <p class="font-data text-f1-text-secondary text-sm"><%= @race.date.strftime("%d %b %Y") %></p>
+        <% case @race.status %>
+        <% when "completed" %>
+          <span class="inline-block mt-2 px-3 py-1 rounded text-sm font-medium bg-f1-teal text-f1-text-inverse">Completed</span>
+        <% when "in_progress" %>
+          <span class="inline-block mt-2 px-3 py-1 rounded text-sm font-medium bg-f1-red text-white animate-pulse">Live</span>
+        <% when "scheduled" %>
+          <span class="inline-block mt-2 px-3 py-1 rounded text-sm font-medium border border-f1-border text-f1-text-muted">Scheduled</span>
+        <% when "cancelled" %>
+          <span class="inline-block mt-2 px-3 py-1 rounded text-sm font-medium border border-f1-border-subtle text-f1-text-muted">Cancelled</span>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <% if @race.status_cancelled? %>
+    <div class="bg-f1-bg-surface rounded-card border border-f1-border p-8 text-center">
+      <p class="text-f1-text-muted text-lg">This race was cancelled.</p>
+    </div>
+
+  <% elsif @race.status_scheduled? %>
+    <div class="bg-f1-bg-surface rounded-card border border-f1-border p-8 text-center">
+      <p class="text-f1-text-muted text-lg">Race not yet run.</p>
+      <p class="text-f1-text-muted text-sm mt-2">Results will appear after the race.</p>
+    </div>
+
+  <% else %>
+
+    <%# ── Podium cards ─────────────────────────────────────────────── %>
+    <% podium = @race.podium %>
+    <% if podium.any? %>
+      <div class="flex items-center gap-3 mb-4">
+        <h2 class="text-xl font-semibold text-f1-text-primary">Podium</h2>
+        <div class="flex-1 h-px bg-f1-red opacity-60"></div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <% podium.each do |result| %>
+          <div class="bg-f1-bg-surface rounded-card border border-f1-border shadow-card hover:shadow-card-hover hover:border-f1-border-accent transition-all duration-200 p-5 flex items-center gap-4">
+            <%# Position badge %>
+            <% case result.final_position %>
+            <% when 1 %>
+              <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-f1-gold text-f1-text-inverse text-lg font-bold flex-shrink-0">1</span>
+            <% when 2 %>
+              <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-f1-silver text-f1-text-inverse text-lg font-bold flex-shrink-0">2</span>
+            <% when 3 %>
+              <%# Bronze: indicateur graphique ≥ 18px bold uniquement (WCAG 3.8:1 AA large) %>
+              <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-f1-bronze text-f1-text-inverse text-lg font-bold flex-shrink-0">3</span>
+            <% end %>
+            <div>
+              <p class="text-f1-text-primary font-semibold"><%= result.driver.full_name %></p>
+              <span class="inline-block px-2 py-0.5 rounded text-xs font-medium text-f1-text-inverse"
+                    style="background-color: var(--f1-team-<%= result.driver.team.tailwind_key %>)">
+                <%= result.driver.team.name %>
+              </span>
+              <p class="text-f1-teal font-data font-bold text-sm mt-1"><%= result.points %> pts</p>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <%# ── Full results table ───────────────────────────────────────── %>
+    <div class="flex items-center gap-3 mb-4">
+      <h2 class="text-xl font-semibold text-f1-text-primary">Full Results</h2>
+      <div class="flex-1 h-px bg-f1-red opacity-60"></div>
+    </div>
+
+    <div class="bg-f1-bg-surface rounded-card border border-f1-border shadow-card overflow-hidden mb-8">
+      <table class="w-full">
+        <thead>
+          <tr class="bg-f1-red">
+            <th class="px-4 py-3 text-left text-label text-white uppercase tracking-wider">Pos</th>
+            <th class="px-4 py-3 text-left text-label text-white uppercase tracking-wider">Driver</th>
+            <th class="px-4 py-3 text-left text-label text-white uppercase tracking-wider hidden sm:table-cell">Team</th>
+            <th class="px-4 py-3 text-right text-label text-white uppercase tracking-wider hidden md:table-cell">Grid</th>
+            <th class="px-4 py-3 text-right text-label text-white uppercase tracking-wider hidden md:table-cell">+/-</th>
+            <th class="px-4 py-3 text-right text-label text-white uppercase tracking-wider">Pts</th>
+            <th class="px-4 py-3 text-left text-label text-white uppercase tracking-wider hidden lg:table-cell">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @race.results.includes(:driver).order(:final_position).each do |result| %>
+            <tr class="border-b border-f1-border hover:bg-f1-bg-elevated transition-colors duration-150">
+              <td class="px-4 py-3 font-data font-bold">
+                <% case result.final_position %>
+                <% when 1 %>
+                  <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-f1-gold text-f1-text-inverse text-sm font-bold">1</span>
+                <% when 2 %>
+                  <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-f1-silver text-f1-text-inverse text-sm font-bold">2</span>
+                <% when 3 %>
+                  <%# Bronze: indicateur graphique ≥ 18px bold uniquement (WCAG 3.8:1 AA large) %>
+                  <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-f1-bronze text-f1-text-inverse text-sm font-bold">3</span>
+                <% else %>
+                  <span class="text-f1-text-secondary font-data font-bold"><%= result.final_position %></span>
+                <% end %>
+              </td>
+              <td class="px-4 py-3">
+                <%= link_to result.driver.full_name, driver_path(result.driver),
+                    class: "text-f1-text-primary hover:text-f1-red transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-f1-teal focus-visible:outline-none" %>
+                <% if result.fastest_lap? %>
+                  <span class="ml-1 text-xs text-f1-teal" title="Fastest Lap">⚡</span>
+                <% end %>
+              </td>
+              <td class="px-4 py-3 hidden sm:table-cell">
+                <span class="inline-block px-2 py-0.5 rounded text-xs font-medium text-f1-text-inverse"
+                      style="background-color: var(--f1-team-<%= result.driver.team.tailwind_key %>)">
+                  <%= result.driver.team.name %>
+                </span>
+              </td>
+              <td class="px-4 py-3 text-f1-text-secondary font-data text-right hidden md:table-cell">
+                <%= result.grid_position || "—" %>
+              </td>
+              <td class="px-4 py-3 font-data text-right hidden md:table-cell">
+                <% gained = result.positions_gained %>
+                <% if gained %>
+                  <% if gained > 0 %>
+                    <span class="text-f1-teal">+<%= gained %></span>
+                  <% elsif gained < 0 %>
+                    <span class="text-f1-red"><%= gained %></span>
+                  <% else %>
+                    <span class="text-f1-text-muted">0</span>
+                  <% end %>
+                <% else %>
+                  <span class="text-f1-text-muted">—</span>
+                <% end %>
+              </td>
+              <td class="px-4 py-3 font-bold text-f1-teal font-data text-right">
+                <%= result.points > 0 ? result.points : "—" %>
+              </td>
+              <td class="px-4 py-3 text-f1-text-secondary text-sm hidden lg:table-cell">
+                <%= result.status %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <%# ── Navigation ───────────────────────────────────────────────── %>
+    <div class="flex justify-between gap-4">
+      <% if @race.previous_race %>
+        <%= link_to race_path(@race.previous_race),
+            class: "flex items-center gap-2 text-f1-text-muted hover:text-f1-text-secondary transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-f1-teal focus-visible:outline-none" do %>
+          <span>←</span>
+          <span class="text-sm">R<%= @race.previous_race.round %> <%= @race.previous_race.name %></span>
+        <% end %>
+      <% else %>
+        <div></div>
+      <% end %>
+      <% if @race.next_race %>
+        <%= link_to race_path(@race.next_race),
+            class: "flex items-center gap-2 text-f1-text-muted hover:text-f1-text-secondary transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-f1-teal focus-visible:outline-none" do %>
+          <span class="text-sm">R<%= @race.next_race.round %> <%= @race.next_race.name %></span>
+          <span>→</span>
+        <% end %>
+      <% end %>
+    </div>
+
+  <% end %>
+
+</div>

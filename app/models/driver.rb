@@ -16,7 +16,11 @@ class Driver < ApplicationRecord
   scope :active, -> { where(active: true) }
   scope :for_season, ->(season) { where(season: season) }
   scope :current_season, -> { for_season(Date.current.year) }
-  scope :by_points, -> { joins(:results).group(:id).order("SUM(results.points) DESC") }
+  scope :by_points, lambda {
+    left_joins(:results)
+      .group(:id)
+      .order(Arel.sql("COALESCE(SUM(results.points), 0) DESC"))
+  }
 
   def full_name
     "#{first_name} #{last_name}"
