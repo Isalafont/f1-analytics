@@ -1,3 +1,4 @@
+<%# app/views/dashboard/driver.html.erb — Issue #44 dark theme — Bender 🤖 %>
 <% content_for :title, "#{@driver.full_name} — F1 Analytics" %>
 
 <div class="w-full">
@@ -8,11 +9,13 @@
 
   <%# ── Driver header ────────────────────────────────────────────── %>
   <div class="bg-f1-bg-surface rounded-card border border-f1-border shadow-card p-6 mb-6">
+    <%# Issue #46 — flex-col mobile, flex-row desktop %>
     <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
       <div>
         <p class="text-label text-f1-text-muted uppercase tracking-widest mb-1">
           #<%= @driver.number %> · Season <%= @driver.season %>
         </p>
+        <%# Issue #46 — responsive H1 %>
         <h1 class="text-2xl sm:text-3xl font-bold text-f1-text-primary mb-2" style="font-family: 'Barlow', sans-serif;">
           <%= @driver.full_name %>
         </h1>
@@ -105,6 +108,7 @@
     </div>
   <% end %>
 
+  <%# ── Issue #45 — Chart B: Points Evolution line chart ──────────── %>
   <% if @cumulative_points.any? %>
     <div class="bg-f1-bg-surface rounded-card border border-f1-border shadow-card p-5 mb-8"
          data-controller="points-evolution-chart"

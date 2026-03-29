@@ -1,3 +1,4 @@
+<%# app/views/dashboard/index.html.erb — Issue #44 dark theme — Bender 🤖 %>
 <% content_for :title, "Dashboard — F1 Analytics" %>
 
 <div class="w-full">
@@ -5,6 +6,7 @@
   <%# ── Hero header ──────────────────────────────────────────────── %>
   <div class="mb-10">
     <div class="flex items-center gap-3 mb-2">
+      <%# Issue #46 — responsive H1 %>
       <h1 class="text-2xl sm:text-3xl font-bold text-f1-text-primary" style="font-family: 'Barlow', sans-serif;">
         🏎️ F1 Analytics
       </h1>
@@ -84,6 +86,7 @@
         <div class="flex-1 h-px bg-f1-red opacity-60"></div>
       </div>
 
+      <%# Issue #45 — Chart A: Championship standings horizontal bar chart %>
       <% if @drivers_chart_data.any? %>
         <div class="bg-f1-bg-surface rounded-card border border-f1-border shadow-card p-5 mb-4"
              data-controller="standings-chart"
