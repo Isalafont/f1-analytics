@@ -1,14 +1,34 @@
 // chart_helpers.js — shared utilities for F1 chart controllers
 
+// Fallback hardcoded colors — used when CSS vars are not resolved (e.g. before stylesheets load,
+// or if --f1-team-* vars are missing). Must stay in sync with application.css :root block.
+const TEAM_COLORS = {
+  redbull:     "#3671C6",
+  ferrari:     "#E8002D",
+  mclaren:     "#FF8000",
+  mercedes:    "#27F4D2",
+  astonmartin: "#229971",
+  alpine:      "#0093CC",
+  haas:        "#B6BABD",
+  rb:          "#6692FF",
+  sauber:      "#52E252",
+  williams:    "#64C4FF",
+  audi:        "#E2E61A",
+  cadillac:    "#FFFFFF",
+}
+
 /**
- * Get the CSS variable value for a team's color.
+ * Get the color for a team key.
+ * Tries CSS var first (--f1-team-{teamKey}), falls back to hardcoded map.
+ * Chart.js cannot resolve CSS var strings — resolved hex value is required.
  * @param {string} teamKey - e.g. "redbull", "ferrari", "mclaren"
  * @returns {string} hex color string
  */
 export function getTeamColor(teamKey) {
-  return getComputedStyle(document.documentElement)
+  const fromVar = getComputedStyle(document.documentElement)
     .getPropertyValue(`--f1-team-${teamKey}`)
     .trim()
+  return fromVar || TEAM_COLORS[teamKey] || "#A0A0A0"
 }
 
 /**
