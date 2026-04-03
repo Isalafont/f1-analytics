@@ -33,7 +33,9 @@ class FetchRaceResultsJob < ApplicationJob
 
   def upsert_result(race, data)
     driver = find_or_create_driver(race, data)
-    Result.find_or_create_by!(race: race, driver: driver) { |r| assign_result(r, data) }
+    result = Result.find_or_initialize_by(race: race, driver: driver)
+    assign_result(result, data)
+    result.save!
   end
 
   def find_or_create_driver(race, data)
