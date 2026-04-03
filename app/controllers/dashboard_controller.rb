@@ -40,13 +40,17 @@ class DashboardController < ApplicationController
   def load_standings
     @drivers = season_drivers
     @teams = season_teams
+    points_by_driver = Result.joins(:driver)
+                             .where(drivers: { season: @season })
+                             .group(:driver_id)
+                             .sum(:points)
     @drivers_chart_data = @drivers.map do |d|
       {
         id: d.id,
         last_name: d.last_name,
         team_key: d.team.tailwind_key,
         team_name: d.team.name,
-        total_points: d.total_points
+        total_points: points_by_driver[d.id].to_i
       }
     end
   end

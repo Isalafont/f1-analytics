@@ -206,11 +206,12 @@ def seed_results(race, results_data)
 
     points = F1::Constants::POINTS_MAP.fetch(final_position, 0)
 
-    Result.find_or_create_by!(race: race, driver: driver) do |r|
-      r.final_position = final_position
-      r.points         = points
-      r.status         = "Finished"
-    end
+    # find_or_initialize_by + assign_attributes + save! = upsert safe
+    # Contrairement à find_or_create_by!, ceci met à jour les records existants
+    # (fix bug #81 : seed tourné avant PR #60 → points = 0 non mis à jour)
+    result = Result.find_or_initialize_by(race: race, driver: driver)
+    result.assign_attributes(final_position: final_position, points: points, status: "Finished")
+    result.save!
   end
 end
 
