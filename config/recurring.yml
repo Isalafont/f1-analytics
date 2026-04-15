@@ -1,0 +1,23 @@
+# Solid Queue — Recurring jobs
+# Doc: https://github.com/rails/solid_queue#recurring-tasks
+#
+# FetchScheduledRacesJob: vérifie toutes les heures si une course dont la date
+# est passée a besoin d'être fetchée (status: scheduled → completed via OpenF1).
+# Idempotent — ne re-fetche pas les courses déjà completed ou cancelled.
+#
+# Planning F1 2026 — les courses ont lieu le dimanche ~14-16h UTC.
+# Une fréquence horaire est suffisante (résultats disponibles ~1h après le drapeau).
+
+production:
+  fetch_scheduled_races:
+    class: FetchScheduledRacesJob
+    schedule: every 1 hour
+    queue: default
+    description: "Check for completed races and fetch results from OpenF1 API"
+
+development:
+  fetch_scheduled_races:
+    class: FetchScheduledRacesJob
+    schedule: every 1 hour
+    queue: default
+    description: "Check for completed races and fetch results from OpenF1 API"
