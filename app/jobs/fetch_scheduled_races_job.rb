@@ -12,21 +12,37 @@ class FetchScheduledRacesJob < ApplicationJob
 
   def perform
     season = Date.current.year
+    races = scheduled_races_to_fetch(season)
 
-    races_to_fetch = Race.for_season(season)
-                         .where(status: :scheduled)
-                         .where("date < ?", Date.current)
-                         .order(:round)
-
-    if races_to_fetch.empty?
-      Rails.logger.info "[FetchScheduledRacesJob] No races to fetch for season #{season}."
+    if races.empty?
+      log_empty(season)
       return
     end
 
-    Rails.logger.info "[FetchScheduledRacesJob] #{races_to_fetch.size} race(s) to fetch: " \
-                      "#{races_to_fetch.map(&:name).join(', ')}"
+    log_start(races)
+    enqueue_races(races)
+  end
 
-    races_to_fetch.each do |race|
+  private
+
+  def scheduled_races_to_fetch(season)
+    Race.for_season(season)
+        .where(status: :scheduled)
+        .where(date: ...Date.current)
+        .order(:round)
+  end
+
+  def log_empty(season)
+    Rails.logger.info "[FetchScheduledRacesJob] No races to fetch for season #{season}."
+  end
+
+  def log_start(races)
+    Rails.logger.info "[FetchScheduledRacesJob] #{races.size} race(s) to fetch: " \
+                      "#{races.map(&:name).join(", ")}"
+  end
+
+  def enqueue_races(races)
+    races.each do |race|
       FetchRaceResultsJob.perform_later(race.id)
       Rails.logger.info "[FetchScheduledRacesJob] Enqueued FetchRaceResultsJob for #{race.name} (Round #{race.round})"
     end
